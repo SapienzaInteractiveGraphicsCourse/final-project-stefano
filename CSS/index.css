@@ -46,12 +46,7 @@ body {
     font-family: 'KGHAPPY';
 }
 
-#money_score {
-  /*padding-left: 550%;*/
-  font-size: 2rem;
-}
-
-#title_score {
+#money_score, #title_score {
   font-size: 2rem;
 }
 
@@ -62,11 +57,11 @@ body {
     font-family: 'KGHAPPY';
 }
 
-#home_page_title {
+#home_page_title, #rules_title {
     font-size: 6rem;
 }
 
-#home_page_column {
+#home_page_column, #rules_column {
     text-align: center;
 }
 
@@ -77,19 +72,15 @@ body {
 
 #rules {
     position: absolute;
-    top: 8%;
-    left: 40%;
-    font-family: 'KGHAPPY';
-}
-
-#rules_title {
-  font-size: 6rem;
-}
-
-#rules_column {
-  text-align: center;
+    left: 36%;
+    font-family: 'KGHAPPY' !important;
 }
 
 #rules_home_page {
+  margin-top: 0%;
   font-size: 20px;
+}
+
+#rules_text {
+  font-size: 22px;
 }
