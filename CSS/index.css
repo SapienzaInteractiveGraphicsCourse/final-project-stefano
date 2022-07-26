@@ -1,0 +1,95 @@
+@font-face {
+    font-family: 'KGHAPPY';
+    src: url('KGHAPPY.ttf') format('truetype');
+}
+
+/* CSS */
+.button-54 {
+  font-family: "Open Sans", sans-serif;
+  font-size: 30px;
+  letter-spacing: 2px;
+  text-decoration: none;
+  text-transform: uppercase;
+  color: #000;
+  cursor: pointer;
+  border: 3px solid;
+  padding: 0.25em 0.5em;
+  box-shadow: 1px 1px 0px 0px, 2px 2px 0px 0px, 3px 3px 0px 0px, 4px 4px 0px 0px, 5px 5px 0px 0px;
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  font-family: 'KGHAPPY';
+  margin-top: 10%;
+  margin-bottom: 10%;
+}
+
+.button-54:active {
+  box-shadow: 0px 0px 0px 0px;
+  top: 5px;
+  left: 5px;
+}
+
+@media (min-width: 768px) {
+  .button-54 {
+    padding: 0.25em 0.75em;
+  }
+}
+
+body {
+    position: fixed;
+    margin: 0;
+}
+
+#score {
+    position: absolute;
+    font-family: 'KGHAPPY';
+}
+
+#money_score {
+  /*padding-left: 550%;*/
+  font-size: 2rem;
+}
+
+#title_score {
+  font-size: 2rem;
+}
+
+#home_page {
+    position: absolute;
+    top: 10%;
+    left: 27%;
+    font-family: 'KGHAPPY';
+}
+
+#home_page_title {
+    font-size: 6rem;
+}
+
+#home_page_column {
+    text-align: center;
+}
+
+#finish {
+    position: absolute;
+    font-family: 'KGHAPPY';
+}
+
+#rules {
+    position: absolute;
+    top: 8%;
+    left: 40%;
+    font-family: 'KGHAPPY';
+}
+
+#rules_title {
+  font-size: 6rem;
+}
+
+#rules_column {
+  text-align: center;
+}
+
+#rules_home_page {
+  font-size: 20px;
+}

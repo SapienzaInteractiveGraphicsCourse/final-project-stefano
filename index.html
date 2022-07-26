@@ -4,37 +4,64 @@
 		<title>Prova</title>
 		<meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="css/index.css">
+		<script type="module" src="./src/main.js"></script>
 	</head>
 
 	<body>
-		<button id="forward">
-			<svg width="30" height="30" viewBox="0 0 10 10">
-				<g transform="rotate(0,5,5)">
-					<path d="M5,4 L7,6 L3,6 L5,4"/>
-				</g>
-			</svg>
-		</button>
-		<button id="left">
-			<svg width="30" height="30" viewBox="0 0 10 10">
-				<g transform="rotate(-90,5,5)">
-					<path d="M5,4 L7,6 L3,6 L5,4"/>
-				</g>
-			</svg>
-		</button>
-		<button id="backward">
-			<svg width="30" height="30" viewBox="0 0 10 10">
-				<g transform="rotate(180,5,5)">
-					<path d="M5,4 L7,6 L3,6 L5,4"/>
-				</g>
-			</svg>
-		</button>
-		<button id="right">
-			<svg width="30" height="30" viewBox="0 0 10 10">
-				<g transform="rotate(90,5,5)">
-					<path d="M5,4 L7,6 L3,6 L5,4"/>
-				</g>
-			</svg>
-		</button>
-		<script type="module" src="./src/main.js"></script>
+		<div id="score">
+			<table width="2600">
+				<tr>
+					<td>
+						<div id="title_score"> Score: </div>
+					</td>
+					<td>
+						<div id="money_score"> Money: </div>	
+					</td>
+				</tr>
+			</table>
+		</div>	
+		<div id="home_page">
+			<div id="home_page_column">
+				<div id="home_page_title"> Robot Road </div>
+				<div>
+					<button id="home_page_start" class="button-54"> Start </button>
+				</div>
+				<div>
+					<button id="home_page_rules" class="button-54"> Rules </button>
+				</div>
+			</div>
+		</div>
+		<div id="finish">
+			<div id="finish_title"> GAME OVER </div>
+			<div id="finish_score"> Score: 
+				<div id="finish_value_score"> </div>
+			</div>
+			<div id="finish_money"> Money:
+				<div id="finish_value_money"> </div>
+			</div>
+			<button id="finish_replay" class="button-54"> PLAY AGAIN </button>
+			<button id="finish_home_page" class="button-54"> HOME </button>
+		</div>
+
+		<div id="rules">
+			<div id="rules_column">
+				<div id="rules_title"> RULES </div>
+				<div>
+					<div id="rules_text">
+						<p> USE -> TO MOVE TO LEFT</p>
+						<p> USE <- TO MOVE TO RIGHT</p>
+						<p> USE UP TO MOVE</p>	
+						<p> USE DOWN TO MOVE BACK</p>
+						<p> USE SPACE TO DO A SPECIAL MOVE</p>
+						<p> COLLECT THE MONEY </p>
+						<p> DON'T GET HIT BY CARS</p>
+					</div>
+				</div>
+				<div>
+					<button id="rules_home_page" class="button-54"> HOME </button>
+				</div>
+			</div>
+		</div>
 	</body>
 </html>
