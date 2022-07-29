@@ -50,24 +50,19 @@ body {
   font-size: 2rem;
 }
 
-#home_page {
+#home_page, #finish {
     position: absolute;
     top: 10%;
     left: 27%;
     font-family: 'KGHAPPY';
 }
 
-#home_page_title, #rules_title {
+#home_page_title, #rules_title, #finish_title {
     font-size: 6rem;
 }
 
-#home_page_column, #rules_column {
+#home_page_column, #rules_column, #finish_column {
     text-align: center;
-}
-
-#finish {
-    position: absolute;
-    font-family: 'KGHAPPY';
 }
 
 #rules {
@@ -81,6 +76,6 @@ body {
   font-size: 20px;
 }
 
-#rules_text {
+#rules_text, #finish_score, #finish_money {
   font-size: 22px;
 }
