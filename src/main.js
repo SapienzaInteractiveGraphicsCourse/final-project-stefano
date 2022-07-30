@@ -24,6 +24,14 @@ const vehicleTextures = ['images/red_texture.jpg','images/yellow_texture.jpg', '
 const treeHeights = [0.5,1,1.5];
 const speeds = [2,2.5,3];
 
+var previous_lane = [];
+var previous_index = [];
+var next_lane = [];
+var next_index = [];
+var back_counter = 0;
+var lanes_mesh = [];
+var indexes = [];
+
 var lanes;
 
 const laneTypes = ['car', 'truck', 'forest'];
@@ -49,9 +57,10 @@ class Lane {
 				this.vehicles = [1,2,3].map(() => {
 					const vehicle = Object.Car();
 					vehicle.position.x = -15;
-					this.mesh.add(vehicle);
 					return vehicle;
 				})
+
+				this.number_object = 0;
 
 				var flag = Math.random() >= 0.5? flag=[1]:flag = [];
 
@@ -75,9 +84,10 @@ class Lane {
 				this.vehicles = [1,2,3].map(() => {
 					const vehicle = Object.Truck();
 					vehicle.position.x = -15;
-					this.mesh.add(vehicle);
 					return vehicle;
 				})
+
+				this.number_object = 0;
 
 				var flag = Math.random() >= 0.5? flag=[1]:flag = [];
 
@@ -97,14 +107,14 @@ class Lane {
 				this.type = 'forest';
 				this.mesh = Object.Grass();
 				this.occupied = new Set();
-				this.trees = [1,2,3,4].map(() => {
+				this.trees = [1,2,3,4,5,6].map(() => {
 					const tree = Object.Tree();
-					var pos = Math.floor(Math.random()*12);
+					var pos = Math.floor(Math.random()*20);
 					while(this.occupied.has(pos)){
-						pos = Math.floor(Math.random()*12);
+						pos = Math.floor(Math.random()*20);
 					}
 					this.occupied.add(pos);
-					tree.position.x = -6+pos;
+					tree.position.x = -13+pos;
 					this.mesh.add(tree);
 					return tree;
 				});
@@ -130,12 +140,9 @@ class Lane {
 	}
 }
 
-var indexes = [];
 for (var i=-5;i<23;i++){
 	indexes.push(i);
 }
-
-var lanes_mesh = [];
 
 
 const generateLanes = () => indexes.map((index) => {
@@ -143,9 +150,6 @@ const generateLanes = () => indexes.map((index) => {
 	lanes_mesh.push(lane);
 	scene.add(lane.mesh);
 });
-
-var time = Math.floor(Date.now() / 1000);
-
 
 buttons()
 
@@ -170,8 +174,8 @@ function setUp() {
 
 function Scene() {
 	
-	document.getElementById("home_page").style.display= 'none';
-	document.getElementById("score").style.display = 'grid';
+	document.getElementById("home_page").style.display= 'grid';
+	document.getElementById("score").style.display = 'none';
 	document.getElementById("finish").style.display = 'none';
 	document.getElementById("rules").style.display = 'none';
 
@@ -254,7 +258,7 @@ class Object {
 
 		car.position.z = 0.5;
 
-		car.userData = {type: 'car', timestamp: time+Math.floor((Math.random()*50)+2)};
+		car.userData = {type: 'car', timestamp: Math.floor(Date.now() / 1000)+Math.floor((Math.random()*20)+7)};
 
 		car.scale.x=car.scale.y=car.scale.z=0.8;
 
@@ -371,7 +375,7 @@ class Object {
 		truck.position.y = 0.1;
 		truck.position.z = 0.5;
 
-		truck.userData = {type: 'truck', timestamp: time+Math.floor((Math.random()*50)+2)};
+		truck.userData = {type: 'truck', timestamp: Math.floor(Date.now() / 1000)+Math.floor((Math.random()*20)+7)};
 
 		truck.scale.x=truck.scale.y=truck.scale.z=0.8;
 
@@ -422,11 +426,11 @@ function buttons() {
 		money_div.innerText = 'MONEY: ' + money;
 		running = true;
 		setUp();
-		/*setTimeout(()=> {
+		setTimeout(()=> {
 			collision()
 			document.getElementById("score").style.display = 'none';
 			document.getElementById("finish").style.display = 'grid';
-		},1000);*/
+		},10000000000);
 	}
 
 	document.getElementById("finish_home_page").onclick = () => {
@@ -464,6 +468,18 @@ function update_score(){
 
 function animate() {
 	for(var i=0;i<lanes_mesh.length;i++){
+		if(lanes_mesh[i].type == 'car' || lanes_mesh[i].type == 'truck'){
+			if(lanes_mesh[i].number_object < 3){
+				for(var j =0;j<lanes_mesh[i].vehicles.length;j++){
+					if(lanes_mesh[i].vehicles[j].userData.timestamp < Math.floor(Date.now()/1000)){
+						lanes_mesh[i].mesh.add(lanes_mesh[i].vehicles[j]);
+						scene.add(lanes_mesh[i].mesh);
+						lanes_mesh[i].number_object+=1;
+						lanes_mesh[i].vehicles.splice(j,1);
+					}
+				}
+			}
+		}
 		const mesh = lanes_mesh[i].mesh;
 		for(var j=0; j<mesh.children.length;j++){
 			if(mesh.children[j].userData.type == 'car' || mesh.children[j].userData.type == 'truck'){
@@ -492,12 +508,6 @@ function render() {
 	requestAnimationFrame(animate);
 	renderer.render(scene,camera);
 }
-
-var previous_lane = [];
-var previous_index = [];
-var next_lane = [];
-var next_index = [];
-var back_counter = 0;
 
 function onKeyDown(event){
 	var code = event.keyCode;
