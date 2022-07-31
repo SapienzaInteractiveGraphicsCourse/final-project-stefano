@@ -1,5 +1,5 @@
-import * as THREE from '../build/three.module.js';
-import {GLTFLoader} from '../loaders/GLTFLoader.js';
+import * as THREE from 'https://cdn.skypack.dev/three@0.134.0/build/three.module.js';
+import {GLTFLoader} from 'https://cdn.skypack.dev/three@0.134.0/examples/jsm/loaders/GLTFLoader.js';
 import { RoundedBoxGeometry } from 'https://cdn.skypack.dev/three@0.134.0/examples/jsm/geometries/RoundedBoxGeometry.js';
 
 var score_div = document.getElementById("title_score");
@@ -31,8 +31,10 @@ var next_index = [];
 var back_counter = 0;
 var lanes_mesh = [];
 var indexes = [];
-
-var lanes;
+var model;
+var current_lane;
+var current_index = 8;
+var next;
 
 const laneTypes = ['car', 'truck', 'forest'];
 
@@ -46,7 +48,7 @@ class Lane {
 			case 'grass': {
 				this.type = 'grass';
 				this.mesh = Object.Grass();
-				this.mesh.position.z = 7- ((index+6)*1.5);
+				this.mesh.position.z = 7- ((index+8)*1);
 				break;
 			}
 			case 'car': {
@@ -73,7 +75,7 @@ class Lane {
 					return money;
 				})
 
-				this.mesh.position.z = 7- ((index+6)*1.5);
+				this.mesh.position.z = 7- ((index+8)*1);
 				this.speed = speeds[Math.floor(Math.random()*speeds.length)];
 				break;
 			}
@@ -99,7 +101,7 @@ class Lane {
 					this.mesh.add(money);
 					return money;
 				})
-				this.mesh.position.z = 7- ((index+6)*1.5);
+				this.mesh.position.z = 7- ((index+8)*1);
 				this.speed = speeds[Math.floor(Math.random()*speeds.length)];
 				break;
 			}
@@ -132,7 +134,7 @@ class Lane {
 					this.mesh.add(money);
 					return money;
 				})
-				this.mesh.position.z = 7- ((index+6)*1.5);
+				this.mesh.position.z = 7- ((index+8)*1);
 				break;
 			}
 		}
@@ -140,7 +142,7 @@ class Lane {
 	}
 }
 
-for (var i=-5;i<23;i++){
+for (var i=-8;i<26;i++){
 	indexes.push(i);
 }
 
@@ -155,20 +157,23 @@ buttons()
 
 function setUp() {
 
-	lanes = generateLanes();
+	generateLanes();
+	current_lane = lanes_mesh[current_index];
+	next = lanes_mesh[current_index+1];
 	loader.load('models/RobotExpressive.glb', function(gltf) {
-		var model = gltf.scene;
+		model = gltf.scene;
 		model.position.x=-1;
 		model.position.y=-0.1;
-		model.position.z=1;
+		model.position.z=-0.9;
 		model.scale.x=model.scale.y=model.scale.z=0.2;
-		model.rotation.y=3.5;
+		model.rotation.y=3.3;
 		document.addEventListener("keydown", onKeyDown, false);
 		scene.add(model);
 		
 	}, undefined, function(e) {
 		console.error(e);
 	});
+	running = true;
 
 }
 
@@ -179,9 +184,6 @@ function Scene() {
 	document.getElementById("finish").style.display = 'none';
 	document.getElementById("rules").style.display = 'none';
 
-	if(document.getElementById("score").style.display == 'grid'){
-		setUp();
-	}
 	camera.position.set(4,5,5);
 	camera.lookAt(new THREE.Vector3(0,2,0));
 
@@ -197,7 +199,7 @@ function Scene() {
 
 	camera.position.z = 5;
 
-	animate()
+	animate();
 }
 
 class Object {
@@ -256,7 +258,7 @@ class Object {
 		car.castShadow = true;
 		car.receiveShadow = false;
 
-		car.position.z = 0.5;
+		car.position.z = 0.3;
 
 		car.userData = {type: 'car', timestamp: Math.floor(Date.now() / 1000)+Math.floor((Math.random()*20)+7)};
 
@@ -310,6 +312,7 @@ class Object {
 		money.receiveShadow = true;
 
 		money.position.y=0.3;
+		money.position.z=0.1
 
 		money.scale.x=money.scale.y=money.scale.z=0.8;
 
@@ -373,7 +376,7 @@ class Object {
 		truck.add(backWheel);
 
 		truck.position.y = 0.1;
-		truck.position.z = 0.5;
+		truck.position.z = 0.3;
 
 		truck.userData = {type: 'truck', timestamp: Math.floor(Date.now() / 1000)+Math.floor((Math.random()*20)+7)};
 
@@ -384,7 +387,7 @@ class Object {
 	}
 
 	static Road() {
-		const geometry = new THREE.BoxBufferGeometry(75,0.1,1.5);
+		const geometry = new THREE.BoxBufferGeometry(75,0.1,1);
 		const material = new THREE.MeshBasicMaterial({
 			color: 0x444444
 		});
@@ -395,7 +398,7 @@ class Object {
 	}
 
 	static Grass() {
-		const geometry = new THREE.BoxBufferGeometry(75,0.1,1.5);
+		const geometry = new THREE.BoxBufferGeometry(75,0.1,1);
 		const material = new THREE.MeshBasicMaterial({
 			color: 0x78b14b
 		});
@@ -424,13 +427,7 @@ function buttons() {
 		document.getElementById("score").style.display = 'grid';
 		score_div.innerText = 'SCORE: ' + score;
 		money_div.innerText = 'MONEY: ' + money;
-		running = true;
 		setUp();
-		setTimeout(()=> {
-			collision()
-			document.getElementById("score").style.display = 'none';
-			document.getElementById("finish").style.display = 'grid';
-		},10000000000);
 	}
 
 	document.getElementById("finish_home_page").onclick = () => {
@@ -451,8 +448,14 @@ function replay() {
 }
 
 function collision() {
-	/* se prende una macchina termina tutto*/
-	finish()
+	console.log(current_lane);
+	if(next.type=='forest'){
+		console.log(next.type);
+		running = false;
+	}
+	else if(current_lane.type=='car' || current_lane.type=='truck'){
+
+	}
 }
 
 function finish(){
@@ -462,7 +465,6 @@ function finish(){
 }
 
 function update_score(){
-	score += 1;
 	score_div.innerHTML = 'SCORE: ' + score;
 }
 
@@ -506,35 +508,45 @@ function animate() {
 
 function render() {
 	requestAnimationFrame(animate);
+	/*if(running == true){
+		collision();
+	}*/
+	update_score();
 	renderer.render(scene,camera);
 }
 
 function onKeyDown(event){
+	if(running == false) return;
 	var code = event.keyCode;
 	const x = camera.position.x;
 	const y = camera.position.y;
 	const z = camera.position.z;
 	switch(code){
 		case 38:
-			if(back_counter == 0) {
-				next_index.push(indexes[indexes.length-1]+1);
-				next_lane.push(new Lane(next_index[next_index.length-1]));
-			}
-			scene.add(next_lane[next_lane.length-1].mesh);
-			indexes.push(next_index[next_index.length-1]);
-			lanes_mesh.push(next_lane[next_lane.length-1]);
-			camera.position.set(x,y,z-1.5);
-			next_index.pop();
-			next_lane.pop();
-			back_counter = back_counter==0?0: back_counter-=1;
-
-
-			previous_lane.push(lanes_mesh[0]);
-			previous_index.push(indexes[0]);
-			scene.remove(lanes_mesh[0].mesh);
-			lanes_mesh.splice(0,1);
-			indexes.splice(0,1);
-			break;
+				if(back_counter == 0) {
+					next_index.push(indexes[indexes.length-1]+1);
+					next_lane.push(new Lane(next_index[next_index.length-1]));
+					score+=1;
+				}
+				scene.add(next_lane[next_lane.length-1].mesh);
+				indexes.push(next_index[next_index.length-1]);
+				lanes_mesh.push(next_lane[next_lane.length-1]);
+				model.position.z-=1;
+				current_index+=1;
+				current_lane = next;
+				next = lanes_mesh[current_index+1];
+				camera.position.set(x,y,z-1);
+				next_index.pop();
+				next_lane.pop();
+				back_counter = back_counter==0?0: back_counter-=1;
+	
+	
+				previous_lane.push(lanes_mesh[0]);
+				previous_index.push(indexes[0]);
+				scene.remove(lanes_mesh[0].mesh);
+				lanes_mesh.splice(0,1);
+				indexes.splice(0,1);
+				break;
 		case 40:
 			if(z==5) break;
 			back_counter+=1;
@@ -543,7 +555,10 @@ function onKeyDown(event){
 			indexes = index_previous.concat(indexes);
 			var lane_previous = [previous_lane[previous_lane.length-1]];
 			lanes_mesh = lane_previous.concat(lanes_mesh);
-			camera.position.set(x,y,z+1.5);
+			model.position.z+=1;
+			current_index-=1;
+			current_lane=lanes_mesh[current_index];
+			camera.position.set(x,y,z+1);
 			previous_index.pop();
 			previous_lane.pop();
 
@@ -555,9 +570,13 @@ function onKeyDown(event){
 			indexes.splice(indexes.length-1,1);
 			break;
 		case 37:
+			if(x== -5) break;
+			model.position.x -=1;
 			camera.position.set(x-1,y,z);
 			break;
 		case 39:
+			if(x==10) break;
+			model.position.x+=1;
 			camera.position.set(x+1,y,z);
 			break;
 	}
