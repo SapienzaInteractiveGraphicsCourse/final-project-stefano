@@ -10,7 +10,12 @@ var finish_money_div = document.getElementById("finish_money");
 var score = 0;
 var money = 0;
 
+var front = true;
+var back = true;
+var left = true;
+var right = true;
 var running = false;
+var game_over = false;
 
 const loader = new GLTFLoader();
 
@@ -22,19 +27,20 @@ const Light = new THREE.DirectionalLight(0xffffff);
 const vehicleColors = [0xa52523, 0xbdb638, 0x78b14b];
 const vehicleTextures = ['images/red_texture.jpg','images/yellow_texture.jpg', 'images/green_texture.jpg'];
 const treeHeights = [0.5,1,1.5];
-const speeds = [2,2.5,3];
+const speeds = [0.01,0.02,0.03];
 
 var previous_lane = [];
 var previous_index = [];
 var next_lane = [];
-var next_index = [];
+var next_indexes = [];
 var back_counter = 0;
 var lanes_mesh = [];
 var indexes = [];
 var model;
 var current_lane;
-var current_index = 8;
+var next_index = 9;
 var next;
+var previous;
 
 const laneTypes = ['car', 'truck', 'forest'];
 
@@ -130,7 +136,7 @@ class Lane {
 						pos= Math.floor(Math.random()*12);
 					}
 					this.occupied.add(pos);
-					money.position.x = -6+pos;
+					money.position.x = -13+pos;
 					this.mesh.add(money);
 					return money;
 				})
@@ -140,66 +146,6 @@ class Lane {
 		}
 
 	}
-}
-
-for (var i=-8;i<26;i++){
-	indexes.push(i);
-}
-
-
-const generateLanes = () => indexes.map((index) => {
-	const lane = new Lane(index);
-	lanes_mesh.push(lane);
-	scene.add(lane.mesh);
-});
-
-buttons()
-
-function setUp() {
-
-	generateLanes();
-	current_lane = lanes_mesh[current_index];
-	next = lanes_mesh[current_index+1];
-	loader.load('models/RobotExpressive.glb', function(gltf) {
-		model = gltf.scene;
-		model.position.x=-1;
-		model.position.y=-0.1;
-		model.position.z=-0.9;
-		model.scale.x=model.scale.y=model.scale.z=0.2;
-		model.rotation.y=3.3;
-		document.addEventListener("keydown", onKeyDown, false);
-		scene.add(model);
-		
-	}, undefined, function(e) {
-		console.error(e);
-	});
-	running = true;
-
-}
-
-function Scene() {
-	
-	document.getElementById("home_page").style.display= 'grid';
-	document.getElementById("score").style.display = 'none';
-	document.getElementById("finish").style.display = 'none';
-	document.getElementById("rules").style.display = 'none';
-
-	camera.position.set(4,5,5);
-	camera.lookAt(new THREE.Vector3(0,2,0));
-
-	renderer.setSize( window.innerWidth, window.innerHeight );
-	document.body.appendChild( renderer.domElement );
-
-	texture_loader.load('images/background.jpg', function(texture){
-		scene.background = texture;
-	});
-
-	Light.position.set(30,20,10);
-	scene.add(Light);
-
-	camera.position.z = 5;
-
-	animate();
 }
 
 class Object {
@@ -315,6 +261,8 @@ class Object {
 		money.position.z=0.1
 
 		money.scale.x=money.scale.y=money.scale.z=0.8;
+		
+		money.userData = {type:'money'};
 
 		return money;
 	}
@@ -408,7 +356,67 @@ class Object {
 	}
 }
 
+for (var i=-8;i<28;i++){
+	indexes.push(i);
+}
+
+
+const generateLanes = () => indexes.map((index) => {
+	const lane = new Lane(index);
+	lanes_mesh.push(lane);
+	scene.add(lane.mesh);
+});
+
+buttons()
+
 window.onload = Scene();
+
+function SetUp(){
+	generateLanes();
+	current_lane = lanes_mesh[next_index-1];
+	next = lanes_mesh[next_index];
+	previous = lanes_mesh[next_index-2];
+	loader.load('models/RobotExpressive.glb', function(gltf) {
+		model = gltf.scene;
+		model.position.x=-1;
+		model.position.y=-0.1;
+		model.position.z=-0.9;
+		model.scale.x=model.scale.y=model.scale.z=0.2;
+		model.rotation.y=3.3;
+		document.addEventListener("keydown", onKeyDown, false);
+		scene.add(model);
+		running = true;
+		
+	}, undefined, function(e) {
+		console.error(e);
+	});
+
+}
+
+function Scene() {
+	
+	document.getElementById("home_page").style.display= 'grid';
+	document.getElementById("score").style.display = 'none';
+	document.getElementById("finish").style.display = 'none';
+	document.getElementById("rules").style.display = 'none';
+
+	camera.position.set(4,5,5);
+	camera.lookAt(new THREE.Vector3(0,2,0));
+
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	document.body.appendChild( renderer.domElement );
+
+	texture_loader.load('images/background.jpg', function(texture){
+		scene.background = texture;
+	});
+
+	Light.position.set(30,20,10);
+	scene.add(Light);
+
+	camera.position.z = 5;
+
+	animate();
+}
 
 
 function buttons() {
@@ -427,7 +435,7 @@ function buttons() {
 		document.getElementById("score").style.display = 'grid';
 		score_div.innerText = 'SCORE: ' + score;
 		money_div.innerText = 'MONEY: ' + money;
-		setUp();
+		SetUp();
 	}
 
 	document.getElementById("finish_home_page").onclick = () => {
@@ -445,30 +453,113 @@ function buttons() {
 function replay() {
 	score = 0;
 	money = 0;
+	for(var j=0;j<lanes_mesh.length;j++){
+		scene.remove(lanes_mesh[j].mesh);
+	}
+	generateLanes();
+	model.position.set(-1,-0.1,-0.9);
+	camera.position.set(4,5,5);
+	running = true;
 }
 
 function collision() {
-	console.log(current_lane);
-	if(next.type=='forest'){
-		console.log(next.type);
-		running = false;
+	if(current_lane.type!='grass'){
+		for(var j=0;j<current_lane.mesh.children.length;j++){
+			if(current_lane.mesh.children[j].userData.type=='money'){
+				if(current_lane.mesh.children[j].position.x==model.position.x){
+					current_lane.mesh.children.splice(j,1);
+					money+=1;
+				}
+			}
+		}
 	}
-	else if(current_lane.type=='car' || current_lane.type=='truck'){
-
+	if(current_lane.type=='truck' || current_lane.type=='car'){
+		for(var j=0;j<current_lane.mesh.children.length;j++){
+			if(current_lane.mesh.children[j].userData.type=='car'){
+				const car = (model.position.x - current_lane.speed)-0.6;
+				console.log('car');
+				console.log(current_lane.mesh.children[j].position.x);
+				console.log('model');
+				console.log(car);
+				if(current_lane.mesh.children[j].position.x==car){
+					game_over=true;
+					running=false;
+				}
+			}
+			if(current_lane.mesh.children[j].userData.type=='truck'){
+				const truck = (model.position.x - current_lane.speed)-0.9;
+				console.log('truck');
+				console.log(current_lane.mesh.children[j].position.x);
+				console.log('model');
+				console.log(truck);
+				if(current_lane.mesh.children[j].position.x==truck){
+					game_over=true;
+					running=false;
+				}
+			}
+		}
+	}
+	if(next.type=='truck' || next.type=='car'){
+		front = true;
+		back= true;
+	}
+	if(current_lane.type=='truck' || current_lane.type=='car'){
+		right=true;
+		left=true;
+	}
+	if(next.type=='forest'){
+		for(var i=0;i<next.trees.length;i++){
+			if(next.trees[i].position.x==model.position.x){
+				front = false;
+				break;
+			}
+			front = true;
+		}
+	}else{
+		front = true;
+	}
+	if(previous.type=='forest'){
+		for(var i=0;i<previous.trees.length;i++){
+			if(previous.trees[i].position.x==model.position.x){
+				back= false;
+				break;
+			}
+			back = true;
+		}
+	}else{
+		back = true;
+	}
+	if(current_lane.type=='forest'){
+		for(var i=0;i<current_lane.type.length;i++){
+			if(current_lane.trees[i].position.x==(model.position.x-1)){
+				left=false;
+				break;
+			}
+			left=true;
+		}
+		for(var i=0;i<current_lane.type.length;i++){
+			if(current_lane.trees[i].position.x==(model.position.x+1)){
+				right=false;
+				break;
+			}
+			right=true;
+		}
 	}
 }
 
 function finish(){
 	finish_score_div.innerHTML = 'Final Score: ' + score;
 	finish_money_div.innerHTML = 'Final Money: ' + money;
+	document.getElementById("score").style.display = 'none';
 	document.getElementById("finish").style.display = 'grid';
 }
 
 function update_score(){
 	score_div.innerHTML = 'SCORE: ' + score;
+	money_div.innerHTML = 'MONEY: ' + money;
 }
 
-function animate() {
+function animation() {
 	for(var i=0;i<lanes_mesh.length;i++){
 		if(lanes_mesh[i].type == 'car' || lanes_mesh[i].type == 'truck'){
 			if(lanes_mesh[i].number_object < 3){
@@ -487,7 +578,8 @@ function animate() {
 			if(mesh.children[j].userData.type == 'car' || mesh.children[j].userData.type == 'truck'){
 				if(mesh.children[j].userData.timestamp < Math.floor(Date.now() / 1000)){
 					if(mesh.children[j].position.x < 4){
-						mesh.children[j].position.x += lanes_mesh[i].speed/100;
+						const add = mesh.children[j].position.x + lanes_mesh[i].speed;
+						mesh.children[j].position.x = Math.round((add+Number.EPSILON)*100)/100;
 					} else{
 						var vehicle;
 						if(mesh.children[j].userData.type == 'car'){
@@ -503,16 +595,23 @@ function animate() {
 			}
 		}
 	}
-	render();
 };
 
-function render() {
+function animate(){
 	requestAnimationFrame(animate);
-	/*if(running == true){
-		collision();
-	}*/
-	update_score();
+	if(running){
+		render();
+	}
 	renderer.render(scene,camera);
+}
+
+function render() {
+	animation();
+	collision();
+	update_score();
+	if(game_over==true){
+		finish();
+	}
 }
 
 function onKeyDown(event){
@@ -523,20 +622,24 @@ function onKeyDown(event){
 	const z = camera.position.z;
 	switch(code){
 		case 38:
+				if(front == false) break;
 				if(back_counter == 0) {
-					next_index.push(indexes[indexes.length-1]+1);
-					next_lane.push(new Lane(next_index[next_index.length-1]));
+					next_indexes.push(indexes[indexes.length-1]+1);
+					next_lane.push(new Lane(next_indexes[next_indexes.length-1]));
 					score+=1;
 				}
 				scene.add(next_lane[next_lane.length-1].mesh);
-				indexes.push(next_index[next_index.length-1]);
+				indexes.push(next_indexes[next_indexes.length-1]);
 				lanes_mesh.push(next_lane[next_lane.length-1]);
 				model.position.z-=1;
-				current_index+=1;
+				previous = current_lane;
 				current_lane = next;
-				next = lanes_mesh[current_index+1];
+				next = lanes_mesh[next_index];
+				if(current_lane == next){
+					next = lanes_mesh[next_index+1];
+				}
 				camera.position.set(x,y,z-1);
-				next_index.pop();
+				next_indexes.pop();
 				next_lane.pop();
 				back_counter = back_counter==0?0: back_counter-=1;
 	
@@ -548,6 +651,7 @@ function onKeyDown(event){
 				indexes.splice(0,1);
 				break;
 		case 40:
+			if(back == false) break;
 			if(z==5) break;
 			back_counter+=1;
 			scene.add(previous_lane[previous_lane.length-1].mesh);
@@ -556,27 +660,35 @@ function onKeyDown(event){
 			var lane_previous = [previous_lane[previous_lane.length-1]];
 			lanes_mesh = lane_previous.concat(lanes_mesh);
 			model.position.z+=1;
-			current_index-=1;
-			current_lane=lanes_mesh[current_index];
+			next = current_lane;
+			current_lane = previous;
+			previous = lanes_mesh[next_index-1];
+			if(current_lane == previous){
+				previous = lanes_mesh[next_index-2];
+			}
 			camera.position.set(x,y,z+1);
 			previous_index.pop();
 			previous_lane.pop();
 
 
 			next_lane.push(lanes_mesh[lanes_mesh.length-1]);
-			next_index.push(indexes[indexes.length-1]);
+			next_indexes.push(indexes[indexes.length-1]);
 			scene.remove(lanes_mesh[lanes_mesh.length-1].mesh);
 			lanes_mesh.splice(lanes_mesh.length-1,1);
 			indexes.splice(indexes.length-1,1);
 			break;
 		case 37:
+			if(left==false) break;
 			if(x== -5) break;
-			model.position.x -=1;
+			model.position.x = model.position.x -1;
+			model.position.x = Math.round((model.position.x+Number.EPSILON)*100)/100;
 			camera.position.set(x-1,y,z);
 			break;
 		case 39:
+			if(right==false) break;
 			if(x==10) break;
-			model.position.x+=1;
+			model.position.x = model.position.x +1;
+			model.position.x = Math.round((model.position.x+Number.EPSILON)*100)/100;
 			camera.position.set(x+1,y,z);
 			break;
 	}
