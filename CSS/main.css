@@ -6,7 +6,7 @@
 /* CSS */
 .button-54 {
   font-family: "Open Sans", sans-serif;
-  font-size: 30px;
+  font-size: 1.875rem;
   letter-spacing: 2px;
   text-decoration: none;
   text-transform: uppercase;
@@ -37,8 +37,8 @@
 }
 
 body {
-    position: fixed;
-    margin: 0;
+  max-width: 100%;
+  margin: 0;
 }
 
 #score {
@@ -73,9 +73,22 @@ body {
 
 #rules_home_page {
   margin-top: 0%;
-  font-size: 20px;
+  font-size: 1.25rem;
 }
 
 #rules_text, #finish_score, #finish_money {
-  font-size: 22px;
+  font-size: 1.375rem;
+}
+
+#buttons {
+  position: absolute;
+  left: 40%;
+  top: 73%;
+  transform: scale(0.8);
+}
+
+#button_up {
+  left: 1%;
+  top: 13%;
+  width: 98%;
 }
