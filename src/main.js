@@ -16,7 +16,6 @@ var left;
 var right;
 var running = false;
 var game_over = false;
-var replay = false;
 
 const loader = new GLTFLoader();
 
@@ -26,9 +25,13 @@ var renderer = new THREE.WebGLRenderer();
 const texture_loader = new THREE.TextureLoader()
 const Light = new THREE.DirectionalLight(0xffffff);
 const vehicleColors = [0xa52523, 0xbdb638, 0x78b14b];
-const vehicleTextures = ['images/red_texture.jpg','images/yellow_texture.jpg', 'images/green_texture.jpg'];
+var red_texture;
+var green_texture;
+var yellow_texture; 
 const treeHeights = [0.5,1,1.5];
 const speeds = [0.01,0.02,0.03];
+var trunk_texture;
+var car_texture;
 
 var previous_lane;
 var previous_index;
@@ -62,10 +65,23 @@ class Lane {
 				this.type = 'car';
 				this.mesh = Object.Road();
 				this.direction = Math.random() >= 0.5;
+				this.speed = speeds[Math.floor(Math.random()*speeds.length)];
+
+				var i = 2;
+				this.timestamp = []
 
 				this.vehicles = [1,2,3].map(() => {
 					const vehicle = Object.Car();
 					vehicle.position.x = -15;
+					vehicle.userData.timestamp = Math.floor((Date.now() + this.speed*400)/1000)+Math.floor(((Math.random()*30))*i);
+					for(var j=0; j<this.timestamp.length;j++){
+						if(this.timestamp[j]==vehicle.userData.timestamp){
+							vehicle.userData.timestamp +=3;
+						}
+					}
+					i+=1;
+					this.timestamp.push(vehicle.userData.timestamp);
+
 					return vehicle;
 				})
 
@@ -83,16 +99,28 @@ class Lane {
 				})
 
 				this.mesh.position.z = 7- ((index+8)*1);
-				this.speed = speeds[Math.floor(Math.random()*speeds.length)];
 				break;
 			}
 			case 'truck': {
 				this.type = 'truck';
 				this.mesh = Object.Road();
+				this.speed = speeds[Math.floor(Math.random()*speeds.length)];
+
+				var i = 1;
+				this.timestamp = []
 
 				this.vehicles = [1,2,3].map(() => {
 					const vehicle = Object.Truck();
 					vehicle.position.x = -15;
+					vehicle.userData.timestamp = Math.floor((Date.now() + this.speed*400)/1000)+Math.floor(((Math.random()*30))*i);
+					for(var j=0; j<this.timestamp.length;j++){
+						if(this.timestamp[j]==vehicle.userData.timestamp){
+							vehicle.userData.timestamp +=3;
+						}
+					}
+					i+=1;
+					this.timestamp.push(vehicle.userData.timestamp);
+
 					return vehicle;
 				})
 
@@ -109,14 +137,13 @@ class Lane {
 					return money;
 				})
 				this.mesh.position.z = 7- ((index+8)*1);
-				this.speed = speeds[Math.floor(Math.random()*speeds.length)];
 				break;
 			}
 			case 'forest': {
 				this.type = 'forest';
 				this.mesh = Object.Grass();
 				this.occupied = new Set();
-				this.trees = [1,2,3,4,5,6].map(() => {
+				this.trees = [1,2,3,4,5].map(() => {
 					const tree = Object.Tree();
 					var pos = Math.floor(Math.random()*20);
 					while(this.occupied.has(pos)){
@@ -164,10 +191,17 @@ class Object {
 		const car = new THREE.Group();
 		const random =Math.floor(Math.random()*vehicleColors.length);
 		const color = vehicleColors[random];
-		const texture = vehicleTextures[random];
+		var texture;
+		if(color==0xa52523){
+			texture = red_texture;
+		}else if(color==0xbdb638){
+			texture = yellow_texture;
+		}else{
+			texture = green_texture;
+		}
 		const main = new THREE.Mesh(
 			new THREE.BoxBufferGeometry(0.8,0.3,0.5),
-			new THREE.MeshPhongMaterial({color, flatShading:true})
+			new THREE.MeshPhongMaterial({color: 0xb4c6fc, flatShading:true, map: car_texture})
 		);
 		main.position.y = 0.6;
 		main.position.x = 0.05;
@@ -179,12 +213,12 @@ class Object {
 		const cabin = new THREE.Mesh(
 		  new THREE.BoxBufferGeometry( 1.5, 0.4, 0.7 ), 
 		  [
-			new THREE.MeshPhongMaterial( { color: 0xcccccc, flatShading: true } ),
-			new THREE.MeshPhongMaterial( { color: 0xcccccc, flatShading: true } ),
-			new THREE.MeshPhongMaterial( { color: 0xcccccc, flatShading: true } ),
-			new THREE.MeshPhongMaterial( { color: 0xcccccc, flatShading: true } ),
-			new THREE.MeshPhongMaterial( { color: 0xcccccc, flatShading: true } ), // top
-			new THREE.MeshPhongMaterial( { color: 0xcccccc, flatShading: true } ) // bottom
+			new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ),
+			new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ),
+			new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ),
+			new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ),
+			new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ), // top
+			new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ) // bottom
 		  ]
 		);
 		cabin.position.y = 0.2;
@@ -208,7 +242,7 @@ class Object {
 		car.position.z = 0.3;
 		car.position.y= 0.1;
 
-		car.userData = {type: 'car', timestamp: Math.floor(Date.now() / 1000)+Math.floor((Math.random()*20)+7)};
+		car.userData = {type: 'car', timestamp: 0};
 
 		car.scale.x=car.scale.y=car.scale.z=0.8;
 
@@ -223,7 +257,8 @@ class Object {
 			new THREE.BoxBufferGeometry(0.4,0.6,0.4),
 			new THREE.MeshPhongMaterial({
 				color: 0x4d2926, 
-				flatShading: true})
+				flatShading: true,
+				map: trunk_texture})
 		);
 		trunk.castShadow = true;
 		trunk.receiveShadow = true;
@@ -235,7 +270,7 @@ class Object {
 				color: 0x7aa21d, 
 				flatShading: true})
 		);
-		crown.position.y = 0.35+((height-0.5)/2);
+		crown.position.y = 0.45+((height-0.5)/2);
 		crown.castShadow = true;
 		crown.receiveShadow = false;
 		tree.add(crown);
@@ -273,11 +308,18 @@ class Object {
 		const truck = new THREE.Group();
 		const random =Math.floor(Math.random()*vehicleColors.length);
 		const color = vehicleColors[random];
-		const texture = vehicleTextures[random];
+		var texture;
+		if(color==0xa52523){
+			texture = red_texture;
+		}else if(color==0xbdb638){
+			texture = yellow_texture;
+		}else{
+			texture = green_texture;
+		}
 
 		const base = new THREE.Mesh(
 			new THREE.BoxBufferGeometry(2.15,0.2,0.2),
-			new THREE.MeshPhongMaterial({color: 0xb4c6fc, flatShading: true})
+			new THREE.MeshPhongMaterial({color: 0xb4c6fc, flatShading: true, map: car_texture})
 		);
 		base.position.x=-0.08;
 		base.position.y=0.275;
@@ -286,7 +328,7 @@ class Object {
 
 		const cargo = new THREE.Mesh(
 			new THREE.BoxBufferGeometry(2,0.9,0.9),
-			new THREE.MeshPhongMaterial({color: 0xb4c6fc, flatShading: true})
+			new THREE.MeshPhongMaterial({color: 0xb4c6fc, flatShading: true, map: car_texture})
 		);
 		cargo.position.x=-0.6;
 		cargo.position.y=0.5;
@@ -298,12 +340,12 @@ class Object {
 		const cabin = new THREE.Mesh(
 			new THREE.BoxBufferGeometry(0.5,0.7,0.7),
 			[
-				new THREE.MeshPhongMaterial( { color, flatShading: true } ), // back
-				new THREE.MeshPhongMaterial( { color, flatShading: true } ),
-				new THREE.MeshPhongMaterial( { color, flatShading: true } ),
-				new THREE.MeshPhongMaterial( { color, flatShading: true } ),
-				new THREE.MeshPhongMaterial( { color, flatShading: true } ), // top
-				new THREE.MeshPhongMaterial( { color, flatShading: true } ) // bottom
+				new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ), // back
+				new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ),
+				new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ),
+				new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ),
+				new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ), // top
+				new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ) // bottom
 			  ]
 		);
 		cabin.position.x=0.85;
@@ -328,7 +370,7 @@ class Object {
 		truck.position.y = 0.1;
 		truck.position.z = 0.3;
 
-		truck.userData = {type: 'truck', timestamp: Math.floor(Date.now() / 1000)+Math.floor((Math.random()*20)+7)};
+		truck.userData = {type: 'truck', timestamp: 0};
 
 		truck.scale.x=truck.scale.y=truck.scale.z=0.8;
 
@@ -428,6 +470,26 @@ function Scene() {
 		scene.background = texture;
 	});
 
+	texture_loader.load('images/trunk_texture.jpg', function(texture){
+		trunk_texture = texture;
+	});
+
+	texture_loader.load('images/red_texture.jpg', function(texture){
+		red_texture = texture;
+	});
+
+	texture_loader.load('images/green_texture.jpg', function(texture){
+		green_texture = texture;
+	});
+
+	texture_loader.load('images/yellow_texture.jpg', function(texture){
+		yellow_texture = texture;
+	});
+
+	texture_loader.load('images/car_texture.jpg', function(texture){
+		car_texture = texture;
+	});
+
 	Light.position.set(30,20,10);
 	scene.add(Light);
 
@@ -480,7 +542,6 @@ function buttons() {
 
 	document.getElementById("finish_replay").onclick = () => {
 		document.getElementById("finish").style.display = 'none';
-		replay=true;
 		Replay();
 		document.getElementById("score").style.display = 'grid';
 	}
@@ -503,7 +564,6 @@ function Replay() {
 	SetUp();
 	game_over = false;
 	running = true;
-	replay=false;
 }
 
 function collision() {
@@ -520,7 +580,7 @@ function collision() {
 	if(current_lane.type=='truck' || current_lane.type=='car'){
 		for(var j=0;j<current_lane.mesh.children.length;j++){
 			if(current_lane.mesh.children[j].userData.type=='car'){
-				const car1 = (model.position.x - current_lane.speed)+1;
+				const car1 = (model.position.x - current_lane.speed)+0.95;
 				const car2 = (model.position.x - current_lane.speed)-0.85;
 				if(current_lane.mesh.children[j].position.x>car2 && current_lane.mesh.children[j].position.x<car1){
 					game_over=true;
@@ -570,14 +630,14 @@ function collision() {
 		back = true;
 	}
 	if(current_lane.type=='forest'){
-		for(var i=0;i<current_lane.type.length;i++){
+		for(var i=0;i<current_lane.trees.length;i++){
 			if(current_lane.trees[i].position.x==(model.position.x-1)){
 				left=false;
 				break;
 			}
 			left=true;
 		}
-		for(var i=0;i<current_lane.type.length;i++){
+		for(var i=0;i<current_lane.trees.length;i++){
 			if(current_lane.trees[i].position.x==(model.position.x+1)){
 				right=false;
 				break;
@@ -630,7 +690,8 @@ function animation() {
 						}
 						lanes_mesh[i].mesh.children.splice(j,1);
 						vehicle.position.x = -15;
-						lanes_mesh[i].mesh.add(vehicle);
+						lanes_mesh[i].vehicles.push(vehicle);
+						lanes_mesh[i].number_object -=1;
 					}
 				}
 			}
