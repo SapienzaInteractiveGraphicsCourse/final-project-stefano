@@ -407,6 +407,7 @@ function SetUp(){
 	left = true;
 	right = true;
 	back_counter = 0;
+	document.getElementById("buttons").style.display = 'grid';
 }
 
 function Scene() {
@@ -590,6 +591,7 @@ function finish(){
 	Clear();
 	finish_score_div.innerHTML = 'Final Score: ' + score;
 	finish_money_div.innerHTML = 'Final Money: ' + money;
+	document.getElementById("buttons").style.display = 'none';
 	document.getElementById("score").style.display = 'none';
 	document.getElementById("finish").style.display = 'grid';
 }
