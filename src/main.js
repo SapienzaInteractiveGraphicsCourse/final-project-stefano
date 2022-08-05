@@ -2,14 +2,15 @@ import * as THREE from 'https://cdn.skypack.dev/three@0.134.0/build/three.module
 import {GLTFLoader} from 'https://cdn.skypack.dev/three@0.134.0/examples/jsm/loaders/GLTFLoader.js';
 import { RoundedBoxGeometry } from 'https://cdn.skypack.dev/three@0.134.0/examples/jsm/geometries/RoundedBoxGeometry.js';
 
+// update scores
 var score_div = document.getElementById("title_score");
 var money_div = document.getElementById("money_score");
 var finish_score_div = document.getElementById("finish_score");
 var finish_money_div = document.getElementById("finish_money");
-
 var score;
 var money;
 
+// animation
 var front;
 var back;
 var left;
@@ -17,22 +18,29 @@ var right;
 var running = false;
 var game_over = false;
 
+// scene and camera
 const loader = new GLTFLoader();
-
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(30 , window.innerWidth/window.innerHeight, 0.25, 1000 );
 var renderer = new THREE.WebGLRenderer();
-const texture_loader = new THREE.TextureLoader()
+
+//light
 const Light = new THREE.DirectionalLight(0xffffff);
+
+// texture
+const texture_loader = new THREE.TextureLoader()
 const vehicleColors = [0xa52523, 0xbdb638, 0x78b14b];
 var red_texture;
 var green_texture;
 var yellow_texture; 
-const treeHeights = [0.5,1,1.5];
-const speeds = [0.01,0.02,0.03];
 var trunk_texture;
 var car_texture;
+var money_texture;
 
+const treeHeights = [0.5,1,1.5];
+const speeds = [0.01,0.02,0.03];
+
+// generate lanes
 var previous_lane;
 var previous_index;
 var next_lane;
@@ -45,47 +53,43 @@ var current_lane;
 var next_index;
 var next;
 var previous;
-
 const laneTypes = ['car', 'truck', 'forest'];
 
+// class to generate a specific lane
 class Lane {
 	constructor(index) {
-		this.index = index;
-		const types = Math.floor(Math.random() * laneTypes.length);
-		this.type = index <= 0 ? 'grass' : laneTypes[types];
+		const type = Math.floor(Math.random() * laneTypes.length);
+		this.type = index <= 0 ? 'grass' : laneTypes[type];
+		var position = 7-(index+8);
 
 		switch (this.type) {
 			case 'grass': {
-				this.type = 'grass';
 				this.mesh = Object.Grass();
-				this.mesh.position.z = 7- ((index+8)*1);
+				this.mesh.position.z = position;
 				break;
 			}
 			case 'car': {
-				this.type = 'car';
 				this.mesh = Object.Road();
-				this.direction = Math.random() >= 0.5;
 				this.speed = speeds[Math.floor(Math.random()*speeds.length)];
 
 				var i = 2;
-				this.timestamp = []
+				var timestamp = [];
+				this.number_object = 0;
 
 				this.vehicles = [1,2,3].map(() => {
 					const vehicle = Object.Car();
 					vehicle.position.x = -15;
 					vehicle.userData.timestamp = Math.floor((Date.now() + this.speed*400)/1000)+Math.floor(((Math.random()*30))*i);
-					for(var j=0; j<this.timestamp.length;j++){
-						if(this.timestamp[j]==vehicle.userData.timestamp){
+					for(var j=0; j<timestamp.length;j++){
+						if(timestamp[j]==vehicle.userData.timestamp){
 							vehicle.userData.timestamp +=3;
 						}
 					}
 					i+=1;
-					this.timestamp.push(vehicle.userData.timestamp);
+					timestamp.push(vehicle.userData.timestamp);
 
 					return vehicle;
 				})
-
-				this.number_object = 0;
 
 				var flag = Math.random() >= 0.5? flag=[1]:flag = [];
 
@@ -98,11 +102,10 @@ class Lane {
 					return money;
 				})
 
-				this.mesh.position.z = 7- ((index+8)*1);
+				this.mesh.position.z = position;
 				break;
 			}
 			case 'truck': {
-				this.type = 'truck';
 				this.mesh = Object.Road();
 				this.speed = speeds[Math.floor(Math.random()*speeds.length)];
 
@@ -136,11 +139,10 @@ class Lane {
 					this.mesh.add(money);
 					return money;
 				})
-				this.mesh.position.z = 7- ((index+8)*1);
+				this.mesh.position.z = position;
 				break;
 			}
 			case 'forest': {
-				this.type = 'forest';
 				this.mesh = Object.Grass();
 				this.occupied = new Set();
 				this.trees = [1,2,3,4,5].map(() => {
@@ -168,7 +170,7 @@ class Lane {
 					this.mesh.add(money);
 					return money;
 				})
-				this.mesh.position.z = 7- ((index+8)*1);
+				this.mesh.position.z = position;
 				break;
 			}
 		}
@@ -189,8 +191,7 @@ class Object {
 
 	static Car() {
 		const car = new THREE.Group();
-		const random =Math.floor(Math.random()*vehicleColors.length);
-		const color = vehicleColors[random];
+		const color = vehicleColors[Math.floor(Math.random()*vehicleColors.length)];
 		var texture;
 		if(color==0xa52523){
 			texture = red_texture;
@@ -288,7 +289,8 @@ class Object {
 			new RoundedBoxGeometry( 0.4, 0.4, 0.4, 10, 2 ),
 			new THREE.MeshPhongMaterial({
 				color: 0xbdb638,
-				flatShading: true
+				flatShading: true,
+				map: money_texture
 			})
 		);
 		money.castShadow = true;
@@ -306,8 +308,7 @@ class Object {
 
 	static Truck() {
 		const truck = new THREE.Group();
-		const random =Math.floor(Math.random()*vehicleColors.length);
-		const color = vehicleColors[random];
+		const color = vehicleColors[Math.floor(Math.random()*vehicleColors.length)];
 		var texture;
 		if(color==0xa52523){
 			texture = red_texture;
@@ -403,8 +404,8 @@ class Object {
 
 const generateLanes = () => indexes.map((index) => {
 	const lane = new Lane(index);
-	lanes_mesh.push(lane);
 	scene.add(lane.mesh);
+	lanes_mesh.push(lane);
 });
 
 buttons()
@@ -417,10 +418,10 @@ function SetUp(){
 	money = 0;
 	lanes_mesh=[];
 	indexes = [];
-	next_index = 9;
 	for (var i=-8;i<28;i++){
 		indexes.push(i);
 	}
+	next_index = 9;
 	generateLanes();
 	current_lane = lanes_mesh[next_index-1];
 	next = lanes_mesh[next_index];
@@ -429,27 +430,26 @@ function SetUp(){
 	loader.load('models/RobotExpressive.glb', function(gltf) {
 		model = gltf.scene;
 		model.position.x=-1;
-		model.position.y=-0.1;
+		model.position.y=0;
 		model.position.z=-0.9;
 		model.scale.x=model.scale.y=model.scale.z=0.2;
-		model.rotation.y=3.3;
+		model.rotation.y=3.2;
 		document.addEventListener("keydown", onKeyDown, false);
 		scene.add(model);
 		running = true;
-		
+		previous_lane = [];
+		previous_index = [];
+		next_lane = [];
+		next_indexes = [];
+		front = true;
+		back = true;
+		left = true;
+		right = true;
+		back_counter = 0;
+		document.getElementById("buttons").style.display = 'grid';
 	}, undefined, function(e) {
 		console.error(e);
 	});
-	previous_lane = [];
-	previous_index = [];
-	next_lane = [];
-	next_indexes = [];
-	front = true;
-	back = true;
-	left = true;
-	right = true;
-	back_counter = 0;
-	document.getElementById("buttons").style.display = 'grid';
 }
 
 function Scene() {
@@ -488,6 +488,10 @@ function Scene() {
 
 	texture_loader.load('images/car_texture.jpg', function(texture){
 		car_texture = texture;
+	});
+
+	texture_loader.load('images/money_texture.jpg', function(texture){
+		money_texture = texture;
 	});
 
 	Light.position.set(30,20,10);
@@ -541,8 +545,8 @@ function buttons() {
 	}
 
 	document.getElementById("finish_replay").onclick = () => {
-		document.getElementById("finish").style.display = 'none';
 		Replay();
+		document.getElementById("finish").style.display = 'none';
 		document.getElementById("score").style.display = 'grid';
 	}
 }
@@ -563,7 +567,6 @@ function Replay() {
 	model.position.set(-1,-0.1,-0.9);
 	SetUp();
 	game_over = false;
-	running = true;
 }
 
 function collision() {
@@ -578,22 +581,20 @@ function collision() {
 		}
 	}
 	if(current_lane.type=='truck' || current_lane.type=='car'){
+		var interval1;
+		var interval2;
 		for(var j=0;j<current_lane.mesh.children.length;j++){
 			if(current_lane.mesh.children[j].userData.type=='car'){
-				const car1 = (model.position.x - current_lane.speed)+0.95;
-				const car2 = (model.position.x - current_lane.speed)-0.85;
-				if(current_lane.mesh.children[j].position.x>car2 && current_lane.mesh.children[j].position.x<car1){
-					game_over=true;
-					running=false;
-				}
+				interval1 = (model.position.x - current_lane.speed)+0.95;
+				interval2 = (model.position.x - current_lane.speed)-0.85;
 			}
 			if(current_lane.mesh.children[j].userData.type=='truck'){
-				const truck1 = (model.position.x - current_lane.speed)-1;
-				const truck2 = (model.position.x - current_lane.speed)+1;
-				if(current_lane.mesh.children[j].position.x>truck1 && current_lane.mesh.children[j].position.x<truck2){
-					game_over=true;
-					running=false;
-				}
+				interval1 = (model.position.x - current_lane.speed)+1;
+				interval2 = (model.position.x - current_lane.speed)-1;
+			}
+			if(current_lane.mesh.children[j].position.x>interval2 && current_lane.mesh.children[j].position.x<interval1){
+				game_over=true;
+				running=false;
 			}
 		}
 	}
@@ -615,8 +616,6 @@ function collision() {
 			}
 			front = true;
 		}
-	}else{
-		front = true;
 	}
 	if(previous.type=='forest'){
 		for(var i=0;i<previous.trees.length;i++){
@@ -626,8 +625,6 @@ function collision() {
 			}
 			back = true;
 		}
-	}else{
-		back = true;
 	}
 	if(current_lane.type=='forest'){
 		for(var i=0;i<current_lane.trees.length;i++){
@@ -720,7 +717,6 @@ function onKeyDown(event){
 	if(running == false) return;
 	var code = event.keyCode;
 	const x = camera.position.x;
-	const y = camera.position.y;
 	const z = camera.position.z;
 	switch(code){
 		case 38:
@@ -740,11 +736,10 @@ function onKeyDown(event){
 				if(current_lane == next){
 					next = lanes_mesh[next_index+1];
 				}
-				camera.position.set(x,y,z-1);
+				camera.position.z-=1;
 				next_indexes.pop();
 				next_lane.pop();
 				back_counter = back_counter==0?0: back_counter-=1;
-	
 	
 				previous_lane.push(lanes_mesh[0]);
 				previous_index.push(indexes[0]);
@@ -753,9 +748,7 @@ function onKeyDown(event){
 				indexes.splice(0,1);
 				break;
 		case 40:
-			if(back == false) break;
-			if(z==5) break;
-			back_counter+=1;
+			if(back == false || z==5) break;
 			scene.add(previous_lane[previous_lane.length-1].mesh);
 			var index_previous = [previous_index[previous_index.length-1]];
 			indexes = index_previous.concat(indexes);
@@ -768,10 +761,10 @@ function onKeyDown(event){
 			if(current_lane == previous){
 				previous = lanes_mesh[next_index-2];
 			}
-			camera.position.set(x,y,z+1);
+			camera.position.z+=1;
 			previous_index.pop();
 			previous_lane.pop();
-
+			back_counter+=1;
 
 			next_lane.push(lanes_mesh[lanes_mesh.length-1]);
 			next_indexes.push(indexes[indexes.length-1]);
@@ -780,16 +773,14 @@ function onKeyDown(event){
 			indexes.splice(indexes.length-1,1);
 			break;
 		case 37:
-			if(left==false) break;
-			if(x== -6) break;
+			if(left==false || x==-6) break;
 			model.position.x -=1;
-			camera.position.set(x-1,y,z);
+			camera.position.x-=1;
 			break;
 		case 39:
-			if(right==false) break;
-			if(x==11) break;
+			if(right==false || x==11) break;
 			model.position.x+=1;
-			camera.position.set(x+1,y,z);
+			camera.position.x+=1;
 			break;
 	}
 }

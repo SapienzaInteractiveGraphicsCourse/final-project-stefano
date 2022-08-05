@@ -43,8 +43,8 @@ body {
 }
 
 #score {
-    position: absolute;
-    font-family: 'KGHAPPY';
+  position: absolute;
+  font-family: 'KGHAPPY';
 }
 
 #money_score, #title_score {
