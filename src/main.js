@@ -1,6 +1,7 @@
 import * as THREE from 'https://cdn.skypack.dev/three@0.134.0/build/three.module.js';
 import {GLTFLoader} from 'https://cdn.skypack.dev/three@0.134.0/examples/jsm/loaders/GLTFLoader.js';
 import { RoundedBoxGeometry } from 'https://cdn.skypack.dev/three@0.134.0/examples/jsm/geometries/RoundedBoxGeometry.js';
+import { TWEEN } from 'https://cdn.skypack.dev/three@0.134.0/examples/jsm/libs/tween.module.min';
 
 // update scores
 var score_div = document.getElementById("title_score");
@@ -401,6 +402,34 @@ class Object {
 	}
 }
 
+class Animator {
+	constructor() {}
+
+	static jumpUp(){
+		var prova = model.getObjectByName('FootL').rotation;
+
+		var tween1 = new TWEEN.Tween(prova)
+		.to({x: prova.x, y:prova.y, z:prova.z}, 1000)
+
+		new TWEEN.Tween(prova)
+		.to({x: prova.x+1, y:prova.y, z:prova.z}, 1000)
+		.chain(tween1)
+		.easing(TWEEN.Easing.Quadratic.Out)
+		.start();
+
+		prova = model.getObjectByName('FootR').rotation;
+
+		tween1 = new TWEEN.Tween(prova)
+		.to({x: prova.x, y:prova.y, z:prova.z}, 1000)
+
+		new TWEEN.Tween(prova)
+		.to({x: prova.x+1, y:prova.y, z:prova.z}, 1000)
+		.chain(tween1)
+		.easing(TWEEN.Easing.Quadratic.Out)
+		.start();
+	}
+}
+
 
 const generateLanes = () => indexes.map((index) => {
 	const lane = new Lane(index);
@@ -411,6 +440,14 @@ const generateLanes = () => indexes.map((index) => {
 buttons()
 
 window.onload = Scene();
+
+window.addEventListener('resize', onWindowResize, false)
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight
+    camera.updateProjectionMatrix()
+    renderer.setSize(window.innerWidth, window.innerHeight)
+    render()
+}
 
 function SetUp(){
 
@@ -447,6 +484,7 @@ function SetUp(){
 		right = true;
 		back_counter = 0;
 		document.getElementById("buttons").style.display = 'grid';
+		console.log(model);
 	}, undefined, function(e) {
 		console.error(e);
 	});
@@ -698,6 +736,7 @@ function animation() {
 
 function animate(){
 	requestAnimationFrame(animate);
+	TWEEN.update();
 	if(running){
 		render();
 	}
@@ -746,6 +785,7 @@ function onKeyDown(event){
 				scene.remove(lanes_mesh[0].mesh);
 				lanes_mesh.splice(0,1);
 				indexes.splice(0,1);
+				Animator.jumpUp();
 				break;
 		case 40:
 			if(back == false || z==5) break;
