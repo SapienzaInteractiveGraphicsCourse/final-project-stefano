@@ -87,6 +87,13 @@ body {
   transform: scale(0.8);
 }
 
+#special_button {
+  position: absolute;
+  left: 30%;
+  top: 82%;
+  transform: scale(0.8);
+}
+
 #button_up {
   left: 1%;
   top: 13%;

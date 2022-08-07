@@ -18,6 +18,13 @@ var left;
 var right;
 var running = false;
 var game_over = false;
+var tween1;
+var tween2;
+var tween3;
+var tween4;
+var prova;
+var isJumping = false;
+var megaJump = false;
 
 // scene and camera
 const loader = new GLTFLoader();
@@ -53,7 +60,9 @@ var model;
 var current_lane;
 var next_index;
 var next;
+var next2;
 var previous;
+var position;
 const laneTypes = ['car', 'truck', 'forest'];
 
 // class to generate a specific lane
@@ -281,6 +290,8 @@ class Object {
 
 		tree.scale.x=tree.scale.y=tree.scale.z=0.8;
 
+		tree.userData={height: height}
+
 		return tree;
 
 	}
@@ -405,29 +416,469 @@ class Object {
 class Animator {
 	constructor() {}
 
-	static jumpUp(){
-		var prova = model.getObjectByName('FootL').rotation;
+    static preprocessing(type, plus){
+        var foot = 'Foot'+type;
+        var xFoot = 0.0008*plus;
+        var upperLeg = 'UpperLeg'+type;
+        var lowerLeg = 'LowerLeg'+type;
 
-		var tween1 = new TWEEN.Tween(prova)
-		.to({x: prova.x, y:prova.y, z:prova.z}, 1000)
+        Animator.shoulder(type,plus);
 
-		new TWEEN.Tween(prova)
-		.to({x: prova.x+1, y:prova.y, z:prova.z}, 1000)
-		.chain(tween1)
+        prova = model.getObjectByName(foot).position;
+
+        tween4 = new TWEEN.Tween(prova)
+		.to({x: prova.x, y:prova.y, z:prova.z}, 250)
+		.easing(TWEEN.Easing.Quadratic.Out)
+
+        tween3 = new TWEEN.Tween(prova)
+		.to({x: prova.x+xFoot, y:prova.y+0.005, z:prova.z+0.005}, 250)
+        .chain(tween4)
+		.easing(TWEEN.Easing.Quadratic.Out)
+
+        tween2 = new TWEEN.Tween(prova)
+        .to({x:prova.x,y:prova.y,z:prova.z},250)
+        .chain(tween3)
+		.easing(TWEEN.Easing.Quadratic.Out)
+
+        tween1 = new TWEEN.Tween(prova)
+        .to({x:prova.x,y:prova.y,z:prova.z},250)
+        .chain(tween2)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+        new TWEEN.Tween(prova)
+		.to({x: prova.x+xFoot, y:prova.y+0.005, z:prova.z+0.005}, 250)
+        .chain(tween1)
 		.easing(TWEEN.Easing.Quadratic.Out)
 		.start();
 
-		prova = model.getObjectByName('FootR').rotation;
+        prova = model.getObjectByName(upperLeg).rotation;
 
-		tween1 = new TWEEN.Tween(prova)
-		.to({x: prova.x, y:prova.y, z:prova.z}, 1000)
+        tween4 = new TWEEN.Tween(prova)
+		.to({x: prova.x, y:prova.y, z:prova.z}, 250)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+        tween3 = new TWEEN.Tween(prova)
+		.to({x: prova.x-1, y:prova.y, z:prova.z}, 250)
+        .chain(tween4)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+        tween2 = new TWEEN.Tween(prova)
+		.to({x: prova.x, y:prova.y, z:prova.z}, 250)
+        .chain(tween3)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+        tween1 = new TWEEN.Tween(prova)
+        .to({x:prova.x,y:prova.y,z:prova.z},250)
+        .chain(tween2)
+        .easing(TWEEN.Easing.Quadratic.Out)
 
 		new TWEEN.Tween(prova)
-		.to({x: prova.x+1, y:prova.y, z:prova.z}, 1000)
-		.chain(tween1)
+		.to({x: prova.x-1, y:prova.y, z:prova.z}, 250)
+        .chain(tween1)
 		.easing(TWEEN.Easing.Quadratic.Out)
 		.start();
+
+        prova = model.getObjectByName(lowerLeg).rotation;
+
+        tween4 = new TWEEN.Tween(prova)
+		.to({x: prova.x, y:prova.y, z:prova.z}, 250)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+        tween3 = new TWEEN.Tween(prova)
+		.to({x: prova.x+0.9, y:prova.y, z:prova.z}, 250)
+        .chain(tween4)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+        tween2 = new TWEEN.Tween(prova)
+		.to({x: prova.x, y:prova.y, z:prova.z}, 250)
+        .chain(tween3)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+        tween1 = new TWEEN.Tween(prova)
+        .to({x:prova.x,y:prova.y,z:prova.z},250)
+        .chain(tween2)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+		new TWEEN.Tween(prova)
+		.to({x: prova.x+0.9, y:prova.y, z:prova.z}, 250)
+        .chain(tween1)
+		.easing(TWEEN.Easing.Quadratic.Out)
+		.start();
+
+    }
+
+    static shoulder(type,plus){
+        var shoulder = 'Shoulder'+type;
+        var zShoulder = -1*plus;
+        prova = model.getObjectByName(shoulder).rotation;
+
+        tween3 = new TWEEN.Tween(prova)
+        .to({x:prova.x,y:prova.y,z:prova.z},250)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+        tween2 = new TWEEN.Tween(prova)
+        .to({x:prova.x,y:prova.y,z:prova.z+zShoulder},500)
+        .chain(tween3)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+        tween1 = new TWEEN.Tween(prova)
+        .to({x:prova.x,y:prova.y,z:prova.z},250)
+        .chain(tween2)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+        new TWEEN.Tween(prova)
+		.to({x: prova.x, y:prova.y, z:prova.z+zShoulder}, 250)
+        .chain(tween1)
+		.easing(TWEEN.Easing.Quadratic.Out)
+		.start();
+    }
+
+	static jump(front, height,rotation){
+
+        isJumping=true;
+
+        Animator.preprocessing('L',-1);
+        Animator.preprocessing('R',1);
+
+        prova = model.getObjectByName('RootNode').rotation;
+
+        tween2 = new TWEEN.Tween(prova)
+        .to({x: prova.x+rotation, y:prova.y, z:prova.z}, 750)
+        .easing(TWEEN.Easing.Quadratic.Out)
+    
+        new TWEEN.Tween(prova)
+        .to({x: prova.x, y:prova.y, z:prova.z}, 250)
+        .chain(tween2)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+
+        prova =model.getObjectByName('RootNode').position;
+
+        tween4 = new TWEEN.Tween(prova)
+        .to({x: prova.x-0.3*(front/5), y: prova.y, z: prova.z+front}, 250)
+        .onComplete(function() {
+            isJumping = false;
+			megaJump = false;
+			document.getElementById("special_button").style.display = 'none';
+        })
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+        tween3 = new TWEEN.Tween(prova)
+        .to({y: prova.y-0.5, z: prova.z+front}, 500)
+        .chain(tween4)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+        tween2 = new TWEEN.Tween(prova)
+        .to({y:prova.y+height,z:prova.z+front},250)
+        .chain(tween3)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        
+        new TWEEN.Tween(prova)
+        .to({y: prova.y-0.5, z: prova.z}, 250)
+        .chain(tween2)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+
+		prova = camera.position;
+
+		new TWEEN.Tween(prova)
+		.to({z: prova.z-1*(front/5)}, 1250)
+		.easing(TWEEN.Easing.Quadratic.Out)
+        .start();
 	}
+
+    static jumpRight(){
+
+        isJumping=true;
+
+        Animator.preprocessing('L',-1);
+        Animator.preprocessing('R',1);
+        
+        prova = model.getObjectByName('RootNode').rotation;
+
+        tween2 = new TWEEN.Tween(prova)
+        .to({x: prova.x, y:prova.y, z:prova.z+6.3}, 750)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+        new TWEEN.Tween(prova)
+		.to({x: prova.x, y:prova.y, z:prova.z}, 250)
+        .chain(tween2)
+		.easing(TWEEN.Easing.Quadratic.Out)
+		.start();
+
+        prova = model.getObjectByName('RootNode').position;
+
+        tween4 = new TWEEN.Tween(prova)
+        .to({x: prova.x-5, y:prova.y, z:prova.z-0.3}, 250)
+        .onComplete(function() {
+			position +=1;
+            isJumping = false;
+        })
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+        tween3 = new TWEEN.Tween(prova)
+        .to({x: prova.x-5, y:prova.y-0.5, z:prova.z}, 500)
+        .chain(tween4)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+        tween1 = new TWEEN.Tween(prova)
+        .to({x: prova.x-2.5, y:prova.y+5, z:prova.z}, 250)
+        .chain(tween3)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+        new TWEEN.Tween(prova)
+		.to({x: prova.x, y:prova.y-0.5, z:prova.z}, 250)
+        .chain(tween1)
+		.easing(TWEEN.Easing.Quadratic.Out)
+		.start();
+
+		prova = camera.position;
+
+		new TWEEN.Tween(prova)
+		.to({x: prova.x+1}, 1250)
+		.easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+
+    }
+
+    static jumpLeft(){
+
+        isJumping=true;
+
+        Animator.preprocessing('L',-1);
+        Animator.preprocessing('R',1);
+        
+        prova = model.getObjectByName('RootNode').rotation;
+
+        tween2 = new TWEEN.Tween(prova)
+        .to({x: prova.x, y:prova.y, z:prova.z-6.3}, 750)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+        new TWEEN.Tween(prova)
+		.to({x: prova.x, y:prova.y, z:prova.z}, 250)
+        .chain(tween2)
+		.easing(TWEEN.Easing.Quadratic.Out)
+		.start();
+
+        prova = model.getObjectByName('RootNode').position;
+
+        tween4 = new TWEEN.Tween(prova)
+        .to({x: prova.x+5, y:prova.y, z:prova.z+0.3}, 250)
+        .onComplete(function() {
+			position -=1;
+            isJumping = false;
+        })
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+        tween3 = new TWEEN.Tween(prova)
+        .to({x: prova.x+5, y:prova.y-0.5, z:prova.z}, 500)
+        .chain(tween4)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+        tween1 = new TWEEN.Tween(prova)
+        .to({x: prova.x+2.5, y:prova.y+5, z:prova.z}, 250)
+        .chain(tween3)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+        new TWEEN.Tween(prova)
+		.to({x: prova.x, y:prova.y-0.5, z:prova.z}, 250)
+        .chain(tween1)
+		.easing(TWEEN.Easing.Quadratic.Out)
+		.start();
+
+		prova = camera.position;
+
+		new TWEEN.Tween(prova)
+		.to({x: prova.x-1}, 1250)
+		.easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+
+    }
+
+    static idle(){
+
+		isJumping=true
+
+        prova =model.getObjectByName('Neck').rotation;
+
+        tween3 = new TWEEN.Tween(prova)
+        .to({x:prova.x,y:prova.y,z:prova.z},750)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+        tween2 = new TWEEN.Tween(prova)
+        .to({x:prova.x,y:prova.y+0.3,z:prova.z},750)
+        .chain(tween3)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+        tween1 = new TWEEN.Tween(prova)
+        .to({x:prova.x,y:prova.y,z:prova.z},750)
+        .chain(tween2)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+        new TWEEN.Tween(prova)
+		.to({x: prova.x, y:prova.y-0.3, z:prova.z}, 750)
+        .chain(tween1)
+		.easing(TWEEN.Easing.Quadratic.Out)
+		.start();
+
+
+        prova = model.getObjectByName('UpperLegR').rotation;
+
+        tween3 = new TWEEN.Tween(prova)
+        .to({x:prova.x,y:prova.y,z:prova.z},750)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+		tween2 = new TWEEN.Tween(prova)
+		.to({x: prova.x-0.3, y:prova.y, z:prova.z}, 750)
+        .chain(tween3)
+		.easing(TWEEN.Easing.Quadratic.Out)
+
+        tween1 = new TWEEN.Tween(prova)
+        .to({x:prova.x,y:prova.y,z:prova.z},750)
+        .chain(tween2)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+		new TWEEN.Tween(prova)
+		.to({x: prova.x-0.3, y:prova.y, z:prova.z}, 750)
+        .chain(tween1)
+		.easing(TWEEN.Easing.Quadratic.Out)
+		.start();
+
+        prova = model.getObjectByName('LowerLegR').rotation;
+
+        tween3 = new TWEEN.Tween(prova)
+        .to({x:prova.x,y:prova.y,z:prova.z},750)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+		tween2 = new TWEEN.Tween(prova)
+		.to({x: prova.x+0.3, y:prova.y, z:prova.z}, 750)
+        .chain(tween3)
+		.easing(TWEEN.Easing.Quadratic.Out)
+
+        tween1 = new TWEEN.Tween(prova)
+        .to({x:prova.x,y:prova.y,z:prova.z},750)
+        .chain(tween2)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+		new TWEEN.Tween(prova)
+		.to({x: prova.x+0.3, y:prova.y, z:prova.z}, 750)
+        .chain(tween1)
+		.easing(TWEEN.Easing.Quadratic.Out)
+		.start();
+
+		prova = model.getObjectByName('UpperLegL').rotation;
+
+        tween3 = new TWEEN.Tween(prova)
+        .to({x:prova.x,y:prova.y,z:prova.z},750)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+		tween2 = new TWEEN.Tween(prova)
+		.to({x: prova.x-0.3, y:prova.y, z:prova.z}, 750)
+        .chain(tween3)
+		.easing(TWEEN.Easing.Quadratic.Out)
+
+        tween1 = new TWEEN.Tween(prova)
+        .to({x:prova.x,y:prova.y,z:prova.z},750)
+        .chain(tween2)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+		new TWEEN.Tween(prova)
+		.to({x: prova.x-0.3, y:prova.y, z:prova.z}, 750)
+        .chain(tween1)
+		.easing(TWEEN.Easing.Quadratic.Out)
+		.start();
+
+        prova = model.getObjectByName('LowerLegL').rotation;
+
+        tween3 = new TWEEN.Tween(prova)
+        .to({x:prova.x,y:prova.y,z:prova.z},750)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+		tween2 = new TWEEN.Tween(prova)
+		.to({x: prova.x+0.3, y:prova.y, z:prova.z}, 750)
+        .chain(tween3)
+		.easing(TWEEN.Easing.Quadratic.Out)
+
+        tween1 = new TWEEN.Tween(prova)
+        .to({x:prova.x,y:prova.y,z:prova.z},750)
+        .chain(tween2)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+		new TWEEN.Tween(prova)
+		.to({x: prova.x+0.3, y:prova.y, z:prova.z}, 750)
+        .chain(tween1)
+		.easing(TWEEN.Easing.Quadratic.Out)
+		.start();
+
+        prova = model.getObjectByName('Body').position;
+
+        tween3 = new TWEEN.Tween(prova)
+		.onComplete(function() {
+			isJumping=false;
+		})
+        .to({x:prova.x,y:prova.y,z:prova.z},750)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+		tween2 = new TWEEN.Tween(prova)
+		.to({x: prova.x, y:prova.y-0.001, z:prova.z}, 750)
+        .chain(tween3)
+		.easing(TWEEN.Easing.Quadratic.Out)
+
+        tween1 = new TWEEN.Tween(prova)
+        .to({x:prova.x,y:prova.y,z:prova.z},750)
+        .chain(tween2)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+		new TWEEN.Tween(prova)
+		.to({x: prova.x, y:prova.y-0.001, z:prova.z}, 750)
+        .chain(tween1)
+		.easing(TWEEN.Easing.Quadratic.Out)
+		.start();
+    }
+
+    static collect(){
+        isJumping = true;
+
+        Animator.preprocessing('L',-1);
+        Animator.preprocessing('R',1);
+
+        prova = model.getObjectByName('RootNode').rotation;
+        tween2 = new TWEEN.Tween(prova)
+        .to({x: prova.x, y:prova.y-6.3, z:prova.z}, 750)
+        .easing(TWEEN.Easing.Quadratic.Out)
+    
+        new TWEEN.Tween(prova)
+        .to({x: prova.x, y:prova.y, z:prova.z}, 250)
+        .chain(tween2)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+
+        prova =model.getObjectByName('RootNode').position;
+
+        tween4 = new TWEEN.Tween(prova)
+        .to({x: prova.x, y: prova.y, z: prova.z}, 250)
+        .onComplete(function() {
+            isJumping = false;
+        })
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+        tween3 = new TWEEN.Tween(prova)
+        .to({x: prova.x, y: prova.y-1, z: prova.z}, 500)
+        .chain(tween4)
+        .easing(TWEEN.Easing.Quadratic.Out)
+
+        tween2 = new TWEEN.Tween(prova)
+        .to({x:prova.x,y:prova.y+1,z:prova.z},250)
+        .chain(tween3)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        
+        new TWEEN.Tween(prova)
+        .to({x: prova.x, y: prova.y-1, z: prova.z}, 250)
+        .chain(tween2)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+
+    }
 }
 
 
@@ -463,16 +914,18 @@ function SetUp(){
 	current_lane = lanes_mesh[next_index-1];
 	next = lanes_mesh[next_index];
 	previous = lanes_mesh[next_index-2];
+	next2 = lanes_mesh[next_index+1];
 	camera.position.set(4,5,5);
 	loader.load('models/RobotExpressive.glb', function(gltf) {
 		model = gltf.scene;
 		model.position.x=-1;
-		model.position.y=0;
-		model.position.z=-0.9;
+		model.position.y=-0.1;
+		model.position.z=-0.7;
 		model.scale.x=model.scale.y=model.scale.z=0.2;
 		model.rotation.y=3.2;
 		document.addEventListener("keydown", onKeyDown, false);
 		scene.add(model);
+		position = model.position.x;
 		running = true;
 		previous_lane = [];
 		previous_index = [];
@@ -484,7 +937,6 @@ function SetUp(){
 		right = true;
 		back_counter = 0;
 		document.getElementById("buttons").style.display = 'grid';
-		console.log(model);
 	}, undefined, function(e) {
 		console.error(e);
 	});
@@ -497,6 +949,7 @@ function Scene() {
 	document.getElementById("finish").style.display = 'none';
 	document.getElementById("rules").style.display = 'none';
 	document.getElementById("buttons").style.display = 'none';
+	document.getElementById("special_button").style.display = 'none';
 
 	camera.position.set(4,5,5);
 	camera.lookAt(new THREE.Vector3(0,2,0));
@@ -557,6 +1010,10 @@ function buttons() {
 		onKeyDown({keyCode: 39});
 	}
 
+	document.getElementById("space_button").onclick = (button) => {
+		onKeyDown({keyCode: 32});
+	}
+
 	document.getElementById("home_page_rules").onclick = () => {
 		document.getElementById("home_page").style.display = 'none';
 		document.getElementById("rules").style.display = 'grid';
@@ -611,9 +1068,12 @@ function collision() {
 	if(current_lane.type!='grass'){
 		for(var j=0;j<current_lane.mesh.children.length;j++){
 			if(current_lane.mesh.children[j].userData.type=='money'){
-				if(current_lane.mesh.children[j].position.x==model.position.x){
-					current_lane.mesh.children.splice(j,1);
-					money+=1;
+				if(current_lane.mesh.children[j].position.x==position){
+					if(isJumping ==false) {
+						current_lane.mesh.children.splice(j,1);
+						money+=1;
+						Animator.collect();
+					}
 				}
 			}
 		}
@@ -623,12 +1083,12 @@ function collision() {
 		var interval2;
 		for(var j=0;j<current_lane.mesh.children.length;j++){
 			if(current_lane.mesh.children[j].userData.type=='car'){
-				interval1 = (model.position.x - current_lane.speed)+0.95;
-				interval2 = (model.position.x - current_lane.speed)-0.85;
+				interval1 = (position - current_lane.speed)+0.95;
+				interval2 = (position - current_lane.speed)-0.85;
 			}
 			if(current_lane.mesh.children[j].userData.type=='truck'){
-				interval1 = (model.position.x - current_lane.speed)+1;
-				interval2 = (model.position.x - current_lane.speed)-1;
+				interval1 = (position - current_lane.speed)+1;
+				interval2 = (position - current_lane.speed)-1;
 			}
 			if(current_lane.mesh.children[j].position.x>interval2 && current_lane.mesh.children[j].position.x<interval1){
 				game_over=true;
@@ -648,16 +1108,36 @@ function collision() {
 	}
 	if(next.type=='forest'){
 		for(var i=0;i<next.trees.length;i++){
-			if(next.trees[i].position.x==model.position.x){
-				front = false;
-				break;
+			if(next.trees[i].position.x==position){
+				if(next.trees[i].userData.height == treeHeights[2]){
+					if(next2.type=='forest'){
+						for(var j=0;j<next2.trees.length;j++){
+							if(next2.trees[i].position.x == position){
+								megaJump = false;
+								front = false;
+								break;
+							}
+							megaJump=true;
+							front=true;
+							document.getElementById("special_button").style.display = 'grid';
+						}
+					}else{
+						megaJump=true;
+						front=true;
+						document.getElementById("special_button").style.display = 'grid';
+					}
+					break;
+				}else{
+					front = false;
+					break;
+				}
 			}
 			front = true;
 		}
 	}
 	if(previous.type=='forest'){
 		for(var i=0;i<previous.trees.length;i++){
-			if(previous.trees[i].position.x==model.position.x){
+			if(previous.trees[i].position.x==position){
 				back= false;
 				break;
 			}
@@ -666,14 +1146,14 @@ function collision() {
 	}
 	if(current_lane.type=='forest'){
 		for(var i=0;i<current_lane.trees.length;i++){
-			if(current_lane.trees[i].position.x==(model.position.x-1)){
+			if(current_lane.trees[i].position.x==(position-1)){
 				left=false;
 				break;
 			}
 			left=true;
 		}
 		for(var i=0;i<current_lane.trees.length;i++){
-			if(current_lane.trees[i].position.x==(model.position.x+1)){
+			if(current_lane.trees[i].position.x==(position+1)){
 				right=false;
 				break;
 			}
@@ -750,43 +1230,46 @@ function render() {
 	if(game_over==true){
 		finish();
 	}
+	/*if(isJumping==false){
+		Animator.idle();
+	}*/
 }
 
 function onKeyDown(event){
-	if(running == false) return;
+	if(running == false || isJumping==true) return;
 	var code = event.keyCode;
 	const x = camera.position.x;
 	const z = camera.position.z;
 	switch(code){
 		case 38:
-				if(front == false) break;
-				if(back_counter == 0) {
-					next_indexes.push(indexes[indexes.length-1]+1);
-					next_lane.push(new Lane(next_indexes[next_indexes.length-1]));
-					score+=1;
-				}
-				scene.add(next_lane[next_lane.length-1].mesh);
-				indexes.push(next_indexes[next_indexes.length-1]);
-				lanes_mesh.push(next_lane[next_lane.length-1]);
-				model.position.z-=1;
-				previous = current_lane;
-				current_lane = next;
-				next = lanes_mesh[next_index];
-				if(current_lane == next){
-					next = lanes_mesh[next_index+1];
-				}
-				camera.position.z-=1;
-				next_indexes.pop();
-				next_lane.pop();
-				back_counter = back_counter==0?0: back_counter-=1;
-	
-				previous_lane.push(lanes_mesh[0]);
-				previous_index.push(indexes[0]);
-				scene.remove(lanes_mesh[0].mesh);
-				lanes_mesh.splice(0,1);
-				indexes.splice(0,1);
-				Animator.jumpUp();
-				break;
+			if(front == false || isJumping==true) break;
+			if(back_counter == 0) {
+				next_indexes.push(indexes[indexes.length-1]+1);
+				next_lane.push(new Lane(next_indexes[next_indexes.length-1]));
+				score+=1;
+			}
+			scene.add(next_lane[next_lane.length-1].mesh);
+			indexes.push(next_indexes[next_indexes.length-1]);
+			lanes_mesh.push(next_lane[next_lane.length-1]);
+			previous = current_lane;
+			current_lane = next;
+			next = lanes_mesh[next_index];
+			next2=lanes_mesh[next_index+1];
+			if(current_lane == next){
+				next = lanes_mesh[next_index+1];
+				next2 = lanes_mesh[next_index+2];
+			}
+			Animator.jump(5,5,6.3);
+			next_indexes.pop();
+			next_lane.pop();
+			back_counter = back_counter==0?0: back_counter-=1;
+
+			previous_lane.push(lanes_mesh[0]);
+			previous_index.push(indexes[0]);
+			scene.remove(lanes_mesh[0].mesh);
+			lanes_mesh.splice(0,1);
+			indexes.splice(0,1);
+			break;
 		case 40:
 			if(back == false || z==5) break;
 			scene.add(previous_lane[previous_lane.length-1].mesh);
@@ -794,13 +1277,14 @@ function onKeyDown(event){
 			indexes = index_previous.concat(indexes);
 			var lane_previous = [previous_lane[previous_lane.length-1]];
 			lanes_mesh = lane_previous.concat(lanes_mesh);
-			model.position.z+=1;
+			next2 = next;
 			next = current_lane;
 			current_lane = previous;
 			previous = lanes_mesh[next_index-1];
 			if(current_lane == previous){
 				previous = lanes_mesh[next_index-2];
 			}
+			Animator.jump(-5,5,-6.3);
 			camera.position.z+=1;
 			previous_index.pop();
 			previous_lane.pop();
@@ -814,13 +1298,57 @@ function onKeyDown(event){
 			break;
 		case 37:
 			if(left==false || x==-6) break;
-			model.position.x -=1;
-			camera.position.x-=1;
+			Animator.jumpLeft();
 			break;
 		case 39:
 			if(right==false || x==11) break;
-			model.position.x+=1;
-			camera.position.x+=1;
+			Animator.jumpRight();
+			break;
+		case 32:
+			if(megaJump == false || isJumping==true) break;
+			if(back_counter == 0) {
+				next_indexes.push(indexes[indexes.length-1]+1);
+				next_indexes.push(indexes[indexes.length-1]+1)
+				next_lane.push(new Lane(next_indexes[next_indexes.length-2]));
+				next_lane.push(new Lane(next_indexes[next_indexes.length-1]));
+				score+=2;
+			}else if(back_counter == 1){
+				next_indexes.push(indexes[indexes.length-1]+1);
+				next_lane.push(new Lane(next_indexes[next_indexes.length-1]));
+				score+=2;
+			}
+			scene.add(next_lane[next_lane.length-2].mesh);
+			scene.add(next_lane[next_lane.length-1].mesh);
+			indexes.push(next_indexes[next_indexes.length-2]);
+			indexes.push(next_indexes[next_indexes.length-1]);
+			lanes_mesh.push(next_lane[next_lane.length-2]);
+			lanes_mesh.push(next_lane[next_lane.length-1]);
+			previous = next;
+			current_lane = lanes_mesh[next_index+1];
+			next = lanes_mesh[next_index+2];
+			next2 = lanes_mesh[next_index+3]
+			if(current_lane == next){
+				next = lanes_mesh[next_index+3];
+				next2 = lanes_mesh[next_index+4]
+			}
+			Animator.jump(10,15,6.3);
+			next_indexes.pop();
+			next_indexes.pop();
+			next_lane.pop();
+			next_lane.pop()
+			back_counter = back_counter==0?0: back_counter-=2;
+
+			previous_lane.push(lanes_mesh[1]);
+			previous_lane.push(lanes_mesh[0]);
+			previous_index.push(indexes[1]);
+			previous_index.push(indexes[0]);
+			scene.remove(lanes_mesh[0].mesh);
+			scene.remove(lanes_mesh[1].mesh);
+			console.log(next_index);
+			lanes_mesh.splice(0,1);
+			lanes_mesh.splice(0,1);
+			indexes.splice(0,1);
+			indexes.splice(0,1);
 			break;
 	}
 }
