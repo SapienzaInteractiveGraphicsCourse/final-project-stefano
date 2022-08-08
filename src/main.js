@@ -1,6 +1,5 @@
 import * as THREE from 'https://cdn.skypack.dev/three@0.134.0/build/three.module.js';
 import {GLTFLoader} from 'https://cdn.skypack.dev/three@0.134.0/examples/jsm/loaders/GLTFLoader.js';
-import { RoundedBoxGeometry } from 'https://cdn.skypack.dev/three@0.134.0/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { TWEEN } from 'https://cdn.skypack.dev/three@0.134.0/examples/jsm/libs/tween.module.min';
 
 // update scores
@@ -25,6 +24,8 @@ var tween4;
 var prova;
 var isJumping = false;
 var megaJump = false;
+var spawn = true;
+var spawnA = [-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0]
 
 // scene and camera
 const loader = new GLTFLoader();
@@ -46,7 +47,7 @@ var car_texture;
 var money_texture;
 
 const treeHeights = [0.5,1,1.5];
-const speeds = [0.01,0.02,0.03];
+const speeds = [0.02,0.025,0.03];
 
 // generate lanes
 var previous_lane;
@@ -88,8 +89,8 @@ class Lane {
 
 				this.vehicles = [1,2,3].map(() => {
 					const vehicle = Object.Car();
-					vehicle.position.x = -15;
-					vehicle.userData.timestamp = Math.floor((Date.now() + this.speed*400)/1000)+Math.floor(((Math.random()*30))*i);
+					vehicle.position.x = -17;
+					vehicle.userData.timestamp = Math.floor((Date.now()/1000))+Math.floor(((Math.random()*20)));
 					for(var j=0; j<timestamp.length;j++){
 						if(timestamp[j]==vehicle.userData.timestamp){
 							vehicle.userData.timestamp +=3;
@@ -124,8 +125,8 @@ class Lane {
 
 				this.vehicles = [1,2,3].map(() => {
 					const vehicle = Object.Truck();
-					vehicle.position.x = -15;
-					vehicle.userData.timestamp = Math.floor((Date.now() + this.speed*400)/1000)+Math.floor(((Math.random()*30))*i);
+					vehicle.position.x = -17;
+					vehicle.userData.timestamp = Math.floor((Date.now()/1000))+Math.floor(((Math.random()*20)));
 					for(var j=0; j<this.timestamp.length;j++){
 						if(this.timestamp[j]==vehicle.userData.timestamp){
 							vehicle.userData.timestamp +=3;
@@ -253,7 +254,7 @@ class Object {
 		car.position.z = 0.3;
 		car.position.y= 0.1;
 
-		car.userData = {type: 'car', timestamp: 0};
+		car.userData = {type: 'car', timestamp: 0, spawn: spawnA[Math.floor(Math.random()*spawnA.length)]};
 
 		car.scale.x=car.scale.y=car.scale.z=0.8;
 
@@ -297,19 +298,23 @@ class Object {
 	}
 
 	static Money() {
+		const geometry = new THREE.CylinderGeometry( 0.25, 0.25, 0.08, 64 );
+
 		const money = new THREE.Mesh(
-			new RoundedBoxGeometry( 0.4, 0.4, 0.4, 10, 2 ),
-			new THREE.MeshPhongMaterial({
+			new THREE.CylinderGeometry( 0.25, 0.25, 0.08, 64 ),
+			new THREE.MeshBasicMaterial({
 				color: 0xbdb638,
-				flatShading: true,
 				map: money_texture
 			})
 		);
 		money.castShadow = true;
 		money.receiveShadow = true;
 
-		money.position.y=0.3;
-		money.position.z=0.1
+		money.position.y=0.4;
+		money.position.z=0.3;
+
+		money.rotation.x += 30;
+		money.rotation.y += 1.55;
 
 		money.scale.x=money.scale.y=money.scale.z=0.8;
 		
@@ -383,7 +388,7 @@ class Object {
 		truck.position.y = 0.1;
 		truck.position.z = 0.3;
 
-		truck.userData = {type: 'truck', timestamp: 0};
+		truck.userData = {type: 'truck', timestamp: 0, spawn: spawnA[Math.floor(Math.random()*spawnA.length)]};
 
 		truck.scale.x=truck.scale.y=truck.scale.z=0.8;
 
@@ -427,26 +432,26 @@ class Animator {
         prova = model.getObjectByName(foot).position;
 
         tween4 = new TWEEN.Tween(prova)
-		.to({x: prova.x, y:prova.y, z:prova.z}, 250)
+		.to({x: prova.x, y:prova.y, z:prova.z}, 125)
 		.easing(TWEEN.Easing.Quadratic.Out)
 
         tween3 = new TWEEN.Tween(prova)
-		.to({x: prova.x+xFoot, y:prova.y+0.005, z:prova.z+0.005}, 250)
+		.to({x: prova.x+xFoot, y:prova.y+0.005, z:prova.z+0.005}, 125)
         .chain(tween4)
 		.easing(TWEEN.Easing.Quadratic.Out)
 
         tween2 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},250)
+        .to({x:prova.x,y:prova.y,z:prova.z},125)
         .chain(tween3)
 		.easing(TWEEN.Easing.Quadratic.Out)
 
         tween1 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},250)
+        .to({x:prova.x,y:prova.y,z:prova.z},125)
         .chain(tween2)
         .easing(TWEEN.Easing.Quadratic.Out)
 
         new TWEEN.Tween(prova)
-		.to({x: prova.x+xFoot, y:prova.y+0.005, z:prova.z+0.005}, 250)
+		.to({x: prova.x+xFoot, y:prova.y+0.005, z:prova.z+0.005}, 125)
         .chain(tween1)
 		.easing(TWEEN.Easing.Quadratic.Out)
 		.start();
@@ -454,26 +459,26 @@ class Animator {
         prova = model.getObjectByName(upperLeg).rotation;
 
         tween4 = new TWEEN.Tween(prova)
-		.to({x: prova.x, y:prova.y, z:prova.z}, 250)
+		.to({x: prova.x, y:prova.y, z:prova.z}, 125)
         .easing(TWEEN.Easing.Quadratic.Out)
 
         tween3 = new TWEEN.Tween(prova)
-		.to({x: prova.x-1, y:prova.y, z:prova.z}, 250)
+		.to({x: prova.x-1, y:prova.y, z:prova.z}, 125)
         .chain(tween4)
         .easing(TWEEN.Easing.Quadratic.Out)
 
         tween2 = new TWEEN.Tween(prova)
-		.to({x: prova.x, y:prova.y, z:prova.z}, 250)
+		.to({x: prova.x, y:prova.y, z:prova.z}, 125)
         .chain(tween3)
         .easing(TWEEN.Easing.Quadratic.Out)
 
         tween1 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},250)
+        .to({x:prova.x,y:prova.y,z:prova.z},125)
         .chain(tween2)
         .easing(TWEEN.Easing.Quadratic.Out)
 
 		new TWEEN.Tween(prova)
-		.to({x: prova.x-1, y:prova.y, z:prova.z}, 250)
+		.to({x: prova.x-1, y:prova.y, z:prova.z}, 125)
         .chain(tween1)
 		.easing(TWEEN.Easing.Quadratic.Out)
 		.start();
@@ -481,26 +486,26 @@ class Animator {
         prova = model.getObjectByName(lowerLeg).rotation;
 
         tween4 = new TWEEN.Tween(prova)
-		.to({x: prova.x, y:prova.y, z:prova.z}, 250)
+		.to({x: prova.x, y:prova.y, z:prova.z}, 125)
         .easing(TWEEN.Easing.Quadratic.Out)
 
         tween3 = new TWEEN.Tween(prova)
-		.to({x: prova.x+0.9, y:prova.y, z:prova.z}, 250)
+		.to({x: prova.x+0.9, y:prova.y, z:prova.z}, 125)
         .chain(tween4)
         .easing(TWEEN.Easing.Quadratic.Out)
 
         tween2 = new TWEEN.Tween(prova)
-		.to({x: prova.x, y:prova.y, z:prova.z}, 250)
+		.to({x: prova.x, y:prova.y, z:prova.z}, 125)
         .chain(tween3)
         .easing(TWEEN.Easing.Quadratic.Out)
 
         tween1 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},250)
+        .to({x:prova.x,y:prova.y,z:prova.z},125)
         .chain(tween2)
         .easing(TWEEN.Easing.Quadratic.Out)
 
 		new TWEEN.Tween(prova)
-		.to({x: prova.x+0.9, y:prova.y, z:prova.z}, 250)
+		.to({x: prova.x+0.9, y:prova.y, z:prova.z}, 125)
         .chain(tween1)
 		.easing(TWEEN.Easing.Quadratic.Out)
 		.start();
@@ -513,21 +518,21 @@ class Animator {
         prova = model.getObjectByName(shoulder).rotation;
 
         tween3 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},250)
+        .to({x:prova.x,y:prova.y,z:prova.z},125)
         .easing(TWEEN.Easing.Quadratic.Out)
 
         tween2 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z+zShoulder},500)
+        .to({x:prova.x,y:prova.y,z:prova.z+zShoulder},250)
         .chain(tween3)
         .easing(TWEEN.Easing.Quadratic.Out)
 
         tween1 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},250)
+        .to({x:prova.x,y:prova.y,z:prova.z},125)
         .chain(tween2)
         .easing(TWEEN.Easing.Quadratic.Out)
 
         new TWEEN.Tween(prova)
-		.to({x: prova.x, y:prova.y, z:prova.z+zShoulder}, 250)
+		.to({x: prova.x, y:prova.y, z:prova.z+zShoulder}, 125)
         .chain(tween1)
 		.easing(TWEEN.Easing.Quadratic.Out)
 		.start();
@@ -540,22 +545,24 @@ class Animator {
         Animator.preprocessing('L',-1);
         Animator.preprocessing('R',1);
 
-        prova = model.getObjectByName('RootNode').rotation;
+		if(rotation != 0){
+			prova = model.getObjectByName('RootNode').rotation;
 
-        tween2 = new TWEEN.Tween(prova)
-        .to({x: prova.x+rotation, y:prova.y, z:prova.z}, 750)
-        .easing(TWEEN.Easing.Quadratic.Out)
-    
-        new TWEEN.Tween(prova)
-        .to({x: prova.x, y:prova.y, z:prova.z}, 250)
-        .chain(tween2)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
+			tween2 = new TWEEN.Tween(prova)
+			.to({x: prova.x+rotation, y:prova.y, z:prova.z}, 375)
+			.easing(TWEEN.Easing.Quadratic.Out)
+		
+			new TWEEN.Tween(prova)
+			.to({x: prova.x, y:prova.y, z:prova.z}, 125)
+			.chain(tween2)
+			.easing(TWEEN.Easing.Quadratic.Out)
+			.start();
+		}
 
         prova =model.getObjectByName('RootNode').position;
 
         tween4 = new TWEEN.Tween(prova)
-        .to({x: prova.x-0.3*(front/5), y: prova.y, z: prova.z+front}, 250)
+        .to({x: prova.x-0.3*(front/5), y: prova.y, z: prova.z+front}, 125)
         .onComplete(function() {
             isJumping = false;
 			megaJump = false;
@@ -564,17 +571,17 @@ class Animator {
         .easing(TWEEN.Easing.Quadratic.Out)
 
         tween3 = new TWEEN.Tween(prova)
-        .to({y: prova.y-0.5, z: prova.z+front}, 500)
+        .to({y: prova.y-0.5, z: prova.z+front}, 250)
         .chain(tween4)
         .easing(TWEEN.Easing.Quadratic.Out)
 
         tween2 = new TWEEN.Tween(prova)
-        .to({y:prova.y+height,z:prova.z+front},250)
+        .to({y:prova.y+height,z:prova.z+front/2},125)
         .chain(tween3)
         .easing(TWEEN.Easing.Quadratic.Out)
         
         new TWEEN.Tween(prova)
-        .to({y: prova.y-0.5, z: prova.z}, 250)
+        .to({y: prova.y-0.5, z: prova.z}, 125)
         .chain(tween2)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
@@ -582,12 +589,12 @@ class Animator {
 		prova = camera.position;
 
 		new TWEEN.Tween(prova)
-		.to({z: prova.z-1*(front/5)}, 1250)
+		.to({z: prova.z-1*(front/5)}, 625)
 		.easing(TWEEN.Easing.Quadratic.Out)
         .start();
 	}
 
-    static jumpRight(){
+    static jumpSide(type){
 
         isJumping=true;
 
@@ -597,11 +604,11 @@ class Animator {
         prova = model.getObjectByName('RootNode').rotation;
 
         tween2 = new TWEEN.Tween(prova)
-        .to({x: prova.x, y:prova.y, z:prova.z+6.3}, 750)
+        .to({x: prova.x, y:prova.y, z:prova.z+6.28*type}, 375)
         .easing(TWEEN.Easing.Quadratic.Out)
 
         new TWEEN.Tween(prova)
-		.to({x: prova.x, y:prova.y, z:prova.z}, 250)
+		.to({x: prova.x, y:prova.y, z:prova.z}, 125)
         .chain(tween2)
 		.easing(TWEEN.Easing.Quadratic.Out)
 		.start();
@@ -609,25 +616,25 @@ class Animator {
         prova = model.getObjectByName('RootNode').position;
 
         tween4 = new TWEEN.Tween(prova)
-        .to({x: prova.x-5, y:prova.y, z:prova.z-0.3}, 250)
+        .to({x: prova.x-5*type, y:prova.y, z:prova.z-0.3*type}, 125)
         .onComplete(function() {
-			position +=1;
+			position +=1*type;
             isJumping = false;
         })
         .easing(TWEEN.Easing.Quadratic.Out)
 
         tween3 = new TWEEN.Tween(prova)
-        .to({x: prova.x-5, y:prova.y-0.5, z:prova.z}, 500)
+        .to({x: prova.x-5*type, y:prova.y-0.5, z:prova.z}, 250)
         .chain(tween4)
         .easing(TWEEN.Easing.Quadratic.Out)
 
         tween1 = new TWEEN.Tween(prova)
-        .to({x: prova.x-2.5, y:prova.y+5, z:prova.z}, 250)
+        .to({x: prova.x-2.5*type, y:prova.y+5, z:prova.z}, 125)
         .chain(tween3)
         .easing(TWEEN.Easing.Quadratic.Out)
 
         new TWEEN.Tween(prova)
-		.to({x: prova.x, y:prova.y-0.5, z:prova.z}, 250)
+		.to({x: prova.x, y:prova.y-0.5, z:prova.z}, 125)
         .chain(tween1)
 		.easing(TWEEN.Easing.Quadratic.Out)
 		.start();
@@ -635,61 +642,7 @@ class Animator {
 		prova = camera.position;
 
 		new TWEEN.Tween(prova)
-		.to({x: prova.x+1}, 1250)
-		.easing(TWEEN.Easing.Quadratic.Out)
-        .start();
-
-    }
-
-    static jumpLeft(){
-
-        isJumping=true;
-
-        Animator.preprocessing('L',-1);
-        Animator.preprocessing('R',1);
-        
-        prova = model.getObjectByName('RootNode').rotation;
-
-        tween2 = new TWEEN.Tween(prova)
-        .to({x: prova.x, y:prova.y, z:prova.z-6.3}, 750)
-        .easing(TWEEN.Easing.Quadratic.Out)
-
-        new TWEEN.Tween(prova)
-		.to({x: prova.x, y:prova.y, z:prova.z}, 250)
-        .chain(tween2)
-		.easing(TWEEN.Easing.Quadratic.Out)
-		.start();
-
-        prova = model.getObjectByName('RootNode').position;
-
-        tween4 = new TWEEN.Tween(prova)
-        .to({x: prova.x+5, y:prova.y, z:prova.z+0.3}, 250)
-        .onComplete(function() {
-			position -=1;
-            isJumping = false;
-        })
-        .easing(TWEEN.Easing.Quadratic.Out)
-
-        tween3 = new TWEEN.Tween(prova)
-        .to({x: prova.x+5, y:prova.y-0.5, z:prova.z}, 500)
-        .chain(tween4)
-        .easing(TWEEN.Easing.Quadratic.Out)
-
-        tween1 = new TWEEN.Tween(prova)
-        .to({x: prova.x+2.5, y:prova.y+5, z:prova.z}, 250)
-        .chain(tween3)
-        .easing(TWEEN.Easing.Quadratic.Out)
-
-        new TWEEN.Tween(prova)
-		.to({x: prova.x, y:prova.y-0.5, z:prova.z}, 250)
-        .chain(tween1)
-		.easing(TWEEN.Easing.Quadratic.Out)
-		.start();
-
-		prova = camera.position;
-
-		new TWEEN.Tween(prova)
-		.to({x: prova.x-1}, 1250)
+		.to({x: prova.x+1*type}, 625)
 		.easing(TWEEN.Easing.Quadratic.Out)
         .start();
 
@@ -702,21 +655,21 @@ class Animator {
         prova =model.getObjectByName('Neck').rotation;
 
         tween3 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},750)
+        .to({x:prova.x,y:prova.y,z:prova.z},375)
         .easing(TWEEN.Easing.Quadratic.Out)
 
         tween2 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y+0.3,z:prova.z},750)
+        .to({x:prova.x,y:prova.y+0.3,z:prova.z},375)
         .chain(tween3)
         .easing(TWEEN.Easing.Quadratic.Out)
 
         tween1 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},750)
+        .to({x:prova.x,y:prova.y,z:prova.z},375)
         .chain(tween2)
         .easing(TWEEN.Easing.Quadratic.Out)
 
         new TWEEN.Tween(prova)
-		.to({x: prova.x, y:prova.y-0.3, z:prova.z}, 750)
+		.to({x: prova.x, y:prova.y-0.3, z:prova.z}, 375)
         .chain(tween1)
 		.easing(TWEEN.Easing.Quadratic.Out)
 		.start();
@@ -725,21 +678,21 @@ class Animator {
         prova = model.getObjectByName('UpperLegR').rotation;
 
         tween3 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},750)
+        .to({x:prova.x,y:prova.y,z:prova.z},375)
         .easing(TWEEN.Easing.Quadratic.Out)
 
 		tween2 = new TWEEN.Tween(prova)
-		.to({x: prova.x-0.3, y:prova.y, z:prova.z}, 750)
+		.to({x: prova.x-0.3, y:prova.y, z:prova.z}, 375)
         .chain(tween3)
 		.easing(TWEEN.Easing.Quadratic.Out)
 
         tween1 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},750)
+        .to({x:prova.x,y:prova.y,z:prova.z},375)
         .chain(tween2)
         .easing(TWEEN.Easing.Quadratic.Out)
 
 		new TWEEN.Tween(prova)
-		.to({x: prova.x-0.3, y:prova.y, z:prova.z}, 750)
+		.to({x: prova.x-0.3, y:prova.y, z:prova.z}, 375)
         .chain(tween1)
 		.easing(TWEEN.Easing.Quadratic.Out)
 		.start();
@@ -747,21 +700,21 @@ class Animator {
         prova = model.getObjectByName('LowerLegR').rotation;
 
         tween3 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},750)
+        .to({x:prova.x,y:prova.y,z:prova.z},375)
         .easing(TWEEN.Easing.Quadratic.Out)
 
 		tween2 = new TWEEN.Tween(prova)
-		.to({x: prova.x+0.3, y:prova.y, z:prova.z}, 750)
+		.to({x: prova.x+0.3, y:prova.y, z:prova.z}, 375)
         .chain(tween3)
 		.easing(TWEEN.Easing.Quadratic.Out)
 
         tween1 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},750)
+        .to({x:prova.x,y:prova.y,z:prova.z},375)
         .chain(tween2)
         .easing(TWEEN.Easing.Quadratic.Out)
 
 		new TWEEN.Tween(prova)
-		.to({x: prova.x+0.3, y:prova.y, z:prova.z}, 750)
+		.to({x: prova.x+0.3, y:prova.y, z:prova.z}, 375)
         .chain(tween1)
 		.easing(TWEEN.Easing.Quadratic.Out)
 		.start();
@@ -769,21 +722,21 @@ class Animator {
 		prova = model.getObjectByName('UpperLegL').rotation;
 
         tween3 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},750)
+        .to({x:prova.x,y:prova.y,z:prova.z},375)
         .easing(TWEEN.Easing.Quadratic.Out)
 
 		tween2 = new TWEEN.Tween(prova)
-		.to({x: prova.x-0.3, y:prova.y, z:prova.z}, 750)
+		.to({x: prova.x-0.3, y:prova.y, z:prova.z}, 375)
         .chain(tween3)
 		.easing(TWEEN.Easing.Quadratic.Out)
 
         tween1 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},750)
+        .to({x:prova.x,y:prova.y,z:prova.z},375)
         .chain(tween2)
         .easing(TWEEN.Easing.Quadratic.Out)
 
 		new TWEEN.Tween(prova)
-		.to({x: prova.x-0.3, y:prova.y, z:prova.z}, 750)
+		.to({x: prova.x-0.3, y:prova.y, z:prova.z}, 375)
         .chain(tween1)
 		.easing(TWEEN.Easing.Quadratic.Out)
 		.start();
@@ -791,21 +744,21 @@ class Animator {
         prova = model.getObjectByName('LowerLegL').rotation;
 
         tween3 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},750)
+        .to({x:prova.x,y:prova.y,z:prova.z},375)
         .easing(TWEEN.Easing.Quadratic.Out)
 
 		tween2 = new TWEEN.Tween(prova)
-		.to({x: prova.x+0.3, y:prova.y, z:prova.z}, 750)
+		.to({x: prova.x+0.3, y:prova.y, z:prova.z}, 375)
         .chain(tween3)
 		.easing(TWEEN.Easing.Quadratic.Out)
 
         tween1 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},750)
+        .to({x:prova.x,y:prova.y,z:prova.z},375)
         .chain(tween2)
         .easing(TWEEN.Easing.Quadratic.Out)
 
 		new TWEEN.Tween(prova)
-		.to({x: prova.x+0.3, y:prova.y, z:prova.z}, 750)
+		.to({x: prova.x+0.3, y:prova.y, z:prova.z}, 375)
         .chain(tween1)
 		.easing(TWEEN.Easing.Quadratic.Out)
 		.start();
@@ -816,21 +769,21 @@ class Animator {
 		.onComplete(function() {
 			isJumping=false;
 		})
-        .to({x:prova.x,y:prova.y,z:prova.z},750)
+        .to({x:prova.x,y:prova.y,z:prova.z},375)
         .easing(TWEEN.Easing.Quadratic.Out)
 
 		tween2 = new TWEEN.Tween(prova)
-		.to({x: prova.x, y:prova.y-0.001, z:prova.z}, 750)
+		.to({x: prova.x, y:prova.y-0.001, z:prova.z}, 375)
         .chain(tween3)
 		.easing(TWEEN.Easing.Quadratic.Out)
 
         tween1 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},750)
+        .to({x:prova.x,y:prova.y,z:prova.z},375)
         .chain(tween2)
         .easing(TWEEN.Easing.Quadratic.Out)
 
 		new TWEEN.Tween(prova)
-		.to({x: prova.x, y:prova.y-0.001, z:prova.z}, 750)
+		.to({x: prova.x, y:prova.y-0.001, z:prova.z}, 375)
         .chain(tween1)
 		.easing(TWEEN.Easing.Quadratic.Out)
 		.start();
@@ -844,11 +797,11 @@ class Animator {
 
         prova = model.getObjectByName('RootNode').rotation;
         tween2 = new TWEEN.Tween(prova)
-        .to({x: prova.x, y:prova.y-6.3, z:prova.z}, 750)
+        .to({x: prova.x, y:prova.y-6.3, z:prova.z}, 375)
         .easing(TWEEN.Easing.Quadratic.Out)
     
         new TWEEN.Tween(prova)
-        .to({x: prova.x, y:prova.y, z:prova.z}, 250)
+        .to({x: prova.x, y:prova.y, z:prova.z}, 125)
         .chain(tween2)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
@@ -856,29 +809,51 @@ class Animator {
         prova =model.getObjectByName('RootNode').position;
 
         tween4 = new TWEEN.Tween(prova)
-        .to({x: prova.x, y: prova.y, z: prova.z}, 250)
+        .to({x: prova.x, y: prova.y, z: prova.z}, 125)
         .onComplete(function() {
             isJumping = false;
         })
         .easing(TWEEN.Easing.Quadratic.Out)
 
         tween3 = new TWEEN.Tween(prova)
-        .to({x: prova.x, y: prova.y-1, z: prova.z}, 500)
+        .to({x: prova.x, y: prova.y-1, z: prova.z}, 250)
         .chain(tween4)
         .easing(TWEEN.Easing.Quadratic.Out)
 
         tween2 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y+1,z:prova.z},250)
+        .to({x:prova.x,y:prova.y+1,z:prova.z},125)
         .chain(tween3)
         .easing(TWEEN.Easing.Quadratic.Out)
         
         new TWEEN.Tween(prova)
-        .to({x: prova.x, y: prova.y-1, z: prova.z}, 250)
+        .to({x: prova.x, y: prova.y-1, z: prova.z}, 125)
         .chain(tween2)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
 
     }
+
+	static money(){
+
+		for(var j=0;j<lanes_mesh.length;j++){
+			for(var i=0;i<lanes_mesh[j].mesh.children.length;i++){
+				if(lanes_mesh[j].mesh.children[i].userData.type=='money'){
+					prova = lanes_mesh[j].mesh.children[i].position;
+
+					tween2 = new TWEEN.Tween(prova)
+					.to({x: prova.x, y:prova.y, z:prova.z}, 500)
+					.easing(TWEEN.Easing.Quadratic.Out)
+				
+					new TWEEN.Tween(prova)
+					.to({x: prova.x, y:prova.y-0.1, z:prova.z}, 500)
+					.chain(tween2)
+					.easing(TWEEN.Easing.Quadratic.Out)
+					.start();
+			
+				}
+			}
+		}
+	}
 }
 
 
@@ -906,15 +881,16 @@ function SetUp(){
 	money = 0;
 	lanes_mesh=[];
 	indexes = [];
-	for (var i=-8;i<28;i++){
+	for (var i=-8;i<30;i++){
 		indexes.push(i);
 	}
 	next_index = 9;
 	generateLanes();
+	setInterval(Animator.money,1000)
 	current_lane = lanes_mesh[next_index-1];
 	next = lanes_mesh[next_index];
 	previous = lanes_mesh[next_index-2];
-	next2 = lanes_mesh[next_index+1];
+	next2 = lanes_mesh[next_index+2];
 	camera.position.set(4,5,5);
 	loader.load('models/RobotExpressive.glb', function(gltf) {
 		model = gltf.scene;
@@ -1087,12 +1063,16 @@ function collision() {
 				interval2 = (position - current_lane.speed)-0.85;
 			}
 			if(current_lane.mesh.children[j].userData.type=='truck'){
-				interval1 = (position - current_lane.speed)+1;
+				interval1 = (position - current_lane.speed)+2;
 				interval2 = (position - current_lane.speed)-1;
 			}
 			if(current_lane.mesh.children[j].position.x>interval2 && current_lane.mesh.children[j].position.x<interval1){
-				game_over=true;
-				running=false;
+				if(isJumping==false){
+					game_over=true;
+					running=false;
+					document.getElementById("special_button").style.display = 'none';
+					return;
+				}
 			}
 		}
 	}
@@ -1112,27 +1092,32 @@ function collision() {
 				if(next.trees[i].userData.height == treeHeights[2]){
 					if(next2.type=='forest'){
 						for(var j=0;j<next2.trees.length;j++){
-							if(next2.trees[i].position.x == position){
+							if(next2.trees[j].position.x == position){
 								megaJump = false;
 								front = false;
+								document.getElementById("special_button").style.display = 'none';
 								break;
 							}
 							megaJump=true;
-							front=true;
+							front=false;
 							document.getElementById("special_button").style.display = 'grid';
 						}
 					}else{
 						megaJump=true;
-						front=true;
+						front=false;
 						document.getElementById("special_button").style.display = 'grid';
 					}
 					break;
 				}else{
-					front = false;
+					megaJump= false;
+					front = true;
+					document.getElementById("special_button").style.display = 'none';
 					break;
 				}
 			}
 			front = true;
+			megaJump = false;
+			document.getElementById("special_button").style.display = 'none';
 		}
 	}
 	if(previous.type=='forest'){
@@ -1182,9 +1167,20 @@ function animation() {
 			if(lanes_mesh[i].number_object < 3){
 				for(var j =0;j<lanes_mesh[i].vehicles.length;j++){
 					if(lanes_mesh[i].vehicles[j].userData.timestamp < Math.floor(Date.now()/1000)){
-						lanes_mesh[i].mesh.add(lanes_mesh[i].vehicles[j]);
-						lanes_mesh[i].number_object+=1;
-						lanes_mesh[i].vehicles.splice(j,1);
+						for(var t=0;t<lanes_mesh[i].mesh.children.length;t++){
+							if(lanes_mesh[i].mesh.children[t].userData.type=='car' || lanes_mesh[i].mesh.children[t].userData.type=='truck'){
+								if(lanes_mesh[i].mesh.children[t].position.x <lanes_mesh[i].vehicles[j].userData.spawn){
+									spawn = false;
+									break;
+								}
+								spawn = true;
+							}
+						}
+						if(spawn == true){
+							lanes_mesh[i].mesh.add(lanes_mesh[i].vehicles[j]);
+							lanes_mesh[i].number_object+=1;
+							lanes_mesh[i].vehicles.splice(j,1);
+						}
 					}
 				}
 			}
@@ -1193,7 +1189,7 @@ function animation() {
 		for(var j=0; j<mesh.children.length;j++){
 			if(mesh.children[j].userData.type == 'car' || mesh.children[j].userData.type == 'truck'){
 				if(mesh.children[j].userData.timestamp < Math.floor(Date.now() / 1000)){
-					if(mesh.children[j].position.x < 4){
+					if(mesh.children[j].position.x < 9){
 						const add = mesh.children[j].position.x + lanes_mesh[i].speed;
 						mesh.children[j].position.x = Math.round((add+Number.EPSILON)*100)/100;
 					} else{
@@ -1254,12 +1250,12 @@ function onKeyDown(event){
 			previous = current_lane;
 			current_lane = next;
 			next = lanes_mesh[next_index];
-			next2=lanes_mesh[next_index+1];
+			next2=lanes_mesh[next_index+2];
 			if(current_lane == next){
 				next = lanes_mesh[next_index+1];
-				next2 = lanes_mesh[next_index+2];
+				next2 = lanes_mesh[next_index+3];
 			}
-			Animator.jump(5,5,6.3);
+			Animator.jump(5,2,0);
 			next_indexes.pop();
 			next_lane.pop();
 			back_counter = back_counter==0?0: back_counter-=1;
@@ -1277,7 +1273,7 @@ function onKeyDown(event){
 			indexes = index_previous.concat(indexes);
 			var lane_previous = [previous_lane[previous_lane.length-1]];
 			lanes_mesh = lane_previous.concat(lanes_mesh);
-			next2 = next;
+			next2 = lanes_mesh[next_index+1];
 			next = current_lane;
 			current_lane = previous;
 			previous = lanes_mesh[next_index-1];
@@ -1297,25 +1293,21 @@ function onKeyDown(event){
 			indexes.splice(indexes.length-1,1);
 			break;
 		case 37:
-			if(left==false || x==-6) break;
-			Animator.jumpLeft();
+			if(left==false || x==-8) break;
+			Animator.jumpSide(-1);
 			break;
 		case 39:
-			if(right==false || x==11) break;
-			Animator.jumpRight();
+			if(right==false || x==12) break;
+			Animator.jumpSide(1);
 			break;
 		case 32:
 			if(megaJump == false || isJumping==true) break;
-			if(back_counter == 0) {
-				next_indexes.push(indexes[indexes.length-1]+1);
-				next_indexes.push(indexes[indexes.length-1]+1)
-				next_lane.push(new Lane(next_indexes[next_indexes.length-2]));
-				next_lane.push(new Lane(next_indexes[next_indexes.length-1]));
-				score+=2;
-			}else if(back_counter == 1){
-				next_indexes.push(indexes[indexes.length-1]+1);
-				next_lane.push(new Lane(next_indexes[next_indexes.length-1]));
-				score+=2;
+			if(back_counter < 3){
+				for(var i =0;i<3-back_counter;i++){
+					next_indexes.push(indexes[indexes.length-1]+1);
+					next_lane.push(new Lane(next_indexes[next_indexes.length-1]));
+				}
+				score+=3
 			}
 			scene.add(next_lane[next_lane.length-2].mesh);
 			scene.add(next_lane[next_lane.length-1].mesh);
@@ -1323,32 +1315,25 @@ function onKeyDown(event){
 			indexes.push(next_indexes[next_indexes.length-1]);
 			lanes_mesh.push(next_lane[next_lane.length-2]);
 			lanes_mesh.push(next_lane[next_lane.length-1]);
-			previous = next;
-			current_lane = lanes_mesh[next_index+1];
-			next = lanes_mesh[next_index+2];
-			next2 = lanes_mesh[next_index+3]
+			previous = lanes_mesh[next_index+1];
+			current_lane = lanes_mesh[next_index+2];
+			next = lanes_mesh[next_index+3];
+			next2 = lanes_mesh[next_index+4]
 			if(current_lane == next){
-				next = lanes_mesh[next_index+3];
-				next2 = lanes_mesh[next_index+4]
+				next = lanes_mesh[next_index+4];
+				next2 = lanes_mesh[next_index+5]
 			}
-			Animator.jump(10,15,6.3);
-			next_indexes.pop();
-			next_indexes.pop();
-			next_lane.pop();
-			next_lane.pop()
-			back_counter = back_counter==0?0: back_counter-=2;
-
-			previous_lane.push(lanes_mesh[1]);
-			previous_lane.push(lanes_mesh[0]);
-			previous_index.push(indexes[1]);
-			previous_index.push(indexes[0]);
-			scene.remove(lanes_mesh[0].mesh);
-			scene.remove(lanes_mesh[1].mesh);
-			console.log(next_index);
-			lanes_mesh.splice(0,1);
-			lanes_mesh.splice(0,1);
-			indexes.splice(0,1);
-			indexes.splice(0,1);
+			Animator.jump(15,15,6.3);
+			for(var i=0;i<3;i++){
+				next_indexes.pop();
+				next_lane.pop();
+				previous_lane.push(lanes_mesh[0]);
+				previous_index.push(indexes[0]);
+				scene.remove(lanes_mesh[0].mesh);
+				lanes_mesh.splice(0,1);
+				indexes.splice(0,1);
+			}
+			back_counter = back_counter==0?0: back_counter-=3;
 			break;
 	}
 }
