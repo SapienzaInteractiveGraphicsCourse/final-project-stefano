@@ -76,7 +76,7 @@ body {
   font-size: 1.25rem;
 }
 
-#rules_text, #finish_score, #finish_money {
+#rules_text, #finish_score, #finish_money, #final_score {
   font-size: 1.375rem;
 }
 

@@ -7,6 +7,7 @@ var score_div = document.getElementById("title_score");
 var money_div = document.getElementById("money_score");
 var finish_score_div = document.getElementById("finish_score");
 var finish_money_div = document.getElementById("finish_money");
+var final_score_div = document.getElementById("final_score");
 var score;
 var money;
 
@@ -22,10 +23,11 @@ var tween2;
 var tween3;
 var tween4;
 var prova;
-var isJumping = false;
-var megaJump = false;
-var spawn = true;
+var isJumping;
+var megaJump;
+var spawn;
 var spawnA = [-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0]
+var interval;
 
 // scene and camera
 const loader = new GLTFLoader();
@@ -311,7 +313,7 @@ class Object {
 		money.receiveShadow = true;
 
 		money.position.y=0.4;
-		money.position.z=0.3;
+		money.position.z=0;
 
 		money.rotation.x += 30;
 		money.rotation.y += 1.55;
@@ -886,7 +888,7 @@ function SetUp(){
 	}
 	next_index = 9;
 	generateLanes();
-	setInterval(Animator.money,1000)
+	interval = setInterval(Animator.money,1000);
 	current_lane = lanes_mesh[next_index-1];
 	next = lanes_mesh[next_index];
 	previous = lanes_mesh[next_index-2];
@@ -896,7 +898,7 @@ function SetUp(){
 		model = gltf.scene;
 		model.position.x=-1;
 		model.position.y=-0.1;
-		model.position.z=-0.7;
+		model.position.z=-0.85;
 		model.scale.x=model.scale.y=model.scale.z=0.2;
 		model.rotation.y=3.2;
 		document.addEventListener("keydown", onKeyDown, false);
@@ -911,6 +913,9 @@ function SetUp(){
 		back = true;
 		left = true;
 		right = true;
+		spawn = true;
+		megaJump = false;
+		isJumping = false;
 		back_counter = 0;
 		document.getElementById("buttons").style.display = 'grid';
 	}, undefined, function(e) {
@@ -1010,7 +1015,6 @@ function buttons() {
 	}
 
 	document.getElementById("finish_home_page").onclick = () => {
-		Clear();
 		document.getElementById("finish").style.display = 'none';
 		document.getElementById("home_page").style.display = 'grid';
 	}
@@ -1027,6 +1031,7 @@ function Clear() {
 		scene.remove(lanes_mesh[j].mesh);
 	}
 	scene.remove(model);
+	clearInterval(interval);
 	game_over = false;
 	running = false;
 }
@@ -1036,6 +1041,7 @@ function Replay() {
 		scene.remove(lanes_mesh[j].mesh);
 	}
 	model.position.set(-1,-0.1,-0.9);
+	clearInterval(interval);
 	SetUp();
 	game_over = false;
 }
@@ -1149,8 +1155,9 @@ function collision() {
 
 function finish(){
 	Clear();
-	finish_score_div.innerHTML = 'Final Score: ' + score;
-	finish_money_div.innerHTML = 'Final Money: ' + money;
+	finish_score_div.innerHTML = 'Score: ' + score;
+	finish_money_div.innerHTML = 'Money: ' + money;
+	final_score_div.innerHTML = 'Final Score: ' + (score+10*money);
 	document.getElementById("buttons").style.display = 'none';
 	document.getElementById("score").style.display = 'none';
 	document.getElementById("finish").style.display = 'grid';
