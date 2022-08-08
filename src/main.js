@@ -33,6 +33,7 @@ var interval;
 const loader = new GLTFLoader();
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(30 , window.innerWidth/window.innerHeight, 0.25, 1000 );
+document.getElementById("home_page").style.left = (camera.aspect*12) + '%';
 var renderer = new THREE.WebGLRenderer();
 
 //light
@@ -871,10 +872,10 @@ window.onload = Scene();
 
 window.addEventListener('resize', onWindowResize, false)
 function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight
+	camera.aspect = window.innerWidth / window.innerHeight
     camera.updateProjectionMatrix()
     renderer.setSize(window.innerWidth, window.innerHeight)
-    animate()
+	document.getElementById("home_page").style.left = (camera.aspect*12) + '%';
 }
 
 function SetUp(){
