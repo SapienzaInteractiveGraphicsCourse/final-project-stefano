@@ -28,6 +28,9 @@ var megaJump;
 var spawn;
 var spawnA = [-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0]
 var interval;
+var interval1;
+var idleInterval = 2;
+var time;
 
 // scene and camera
 const loader = new GLTFLoader();
@@ -268,13 +271,18 @@ class Object {
 		cabin.receiveShadow = true;
 		car.add( cabin );
 		
-		const frontWheel = Object.Wheel();
-		frontWheel.position.x = -0.5;
-		car.add( frontWheel );
-	  
 		const backWheel = Object.Wheel();
-		backWheel.position.x = 0.5;
+		backWheel.position.x = -0.5;
 		car.add( backWheel );
+
+		const frontWheelR = Object.Wheel();
+		frontWheelR.position.x = 0.5;
+		frontWheelR.position.z = -0.45;
+		car.add( frontWheelR );
+	  
+		const frontWheelL = Object.Wheel();
+		frontWheelL.position.x = 0.5;
+		car.add( frontWheelL );
 	  
 		car.castShadow = true;
 		car.receiveShadow = false;
@@ -326,7 +334,6 @@ class Object {
 	}
 
 	static Money() {
-		const geometry = new THREE.CylinderGeometry( 0.25, 0.25, 0.08, 64 );
 
 		const money = new THREE.Mesh(
 			new THREE.CylinderGeometry( 0.25, 0.25, 0.08, 64 ),
@@ -401,17 +408,22 @@ class Object {
 		cabin.receiveShadow = true;
 		truck.add(cabin);
 
-		const frontWheel = Object.Wheel();
-		frontWheel.position.x = -1.05;
-		truck.add(frontWheel);
+		const backWheel = Object.Wheel();
+		backWheel.position.x = -1.05;
+		truck.add(backWheel);
 
 		const middleWheel = Object.Wheel();
 		middleWheel.position.x = 0.18;
 		truck.add(middleWheel);
 
-		const backWheel = Object.Wheel();
-		backWheel.position.x = 0.83;
-		truck.add(backWheel);
+		const frontWheelL = Object.Wheel();
+		frontWheelL.position.x = 0.83;
+		truck.add(frontWheelL);
+
+		const frontWheelR = Object.Wheel();
+		frontWheelR.position.x = 0.83;
+		frontWheelR.position.z = -0.45;
+		truck.add( frontWheelR );
 
 		truck.position.y = 0.1;
 		truck.position.z = 0.3;
@@ -595,6 +607,7 @@ class Animator {
             isJumping = false;
 			megaJump = false;
 			document.getElementById("special_button").style.display = 'none';
+			time = 0;
         })
         .easing(TWEEN.Easing.Quadratic.Out)
 
@@ -648,6 +661,7 @@ class Animator {
         .onComplete(function() {
 			position +=1*type;
             isJumping = false;
+			time = 0;
         })
         .easing(TWEEN.Easing.Quadratic.Out)
 
@@ -677,144 +691,16 @@ class Animator {
     }
 
     static idle(){
-
-		isJumping=true
-
         prova =model.getObjectByName('Neck').rotation;
 
-        tween3 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},375)
-        .easing(TWEEN.Easing.Quadratic.Out)
-
-        tween2 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y+0.3,z:prova.z},375)
-        .chain(tween3)
-        .easing(TWEEN.Easing.Quadratic.Out)
-
-        tween1 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},375)
-        .chain(tween2)
-        .easing(TWEEN.Easing.Quadratic.Out)
-
         new TWEEN.Tween(prova)
-		.to({x: prova.x, y:prova.y-0.3, z:prova.z}, 375)
-        .chain(tween1)
-		.easing(TWEEN.Easing.Quadratic.Out)
-		.start();
-
-
-        prova = model.getObjectByName('UpperLegR').rotation;
-
-        tween3 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},375)
-        .easing(TWEEN.Easing.Quadratic.Out)
-
-		tween2 = new TWEEN.Tween(prova)
-		.to({x: prova.x-0.3, y:prova.y, z:prova.z}, 375)
-        .chain(tween3)
-		.easing(TWEEN.Easing.Quadratic.Out)
-
-        tween1 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},375)
-        .chain(tween2)
-        .easing(TWEEN.Easing.Quadratic.Out)
-
-		new TWEEN.Tween(prova)
-		.to({x: prova.x-0.3, y:prova.y, z:prova.z}, 375)
-        .chain(tween1)
-		.easing(TWEEN.Easing.Quadratic.Out)
-		.start();
-
-        prova = model.getObjectByName('LowerLegR').rotation;
-
-        tween3 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},375)
-        .easing(TWEEN.Easing.Quadratic.Out)
-
-		tween2 = new TWEEN.Tween(prova)
-		.to({x: prova.x+0.3, y:prova.y, z:prova.z}, 375)
-        .chain(tween3)
-		.easing(TWEEN.Easing.Quadratic.Out)
-
-        tween1 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},375)
-        .chain(tween2)
-        .easing(TWEEN.Easing.Quadratic.Out)
-
-		new TWEEN.Tween(prova)
-		.to({x: prova.x+0.3, y:prova.y, z:prova.z}, 375)
-        .chain(tween1)
-		.easing(TWEEN.Easing.Quadratic.Out)
-		.start();
-
-		prova = model.getObjectByName('UpperLegL').rotation;
-
-        tween3 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},375)
-        .easing(TWEEN.Easing.Quadratic.Out)
-
-		tween2 = new TWEEN.Tween(prova)
-		.to({x: prova.x-0.3, y:prova.y, z:prova.z}, 375)
-        .chain(tween3)
-		.easing(TWEEN.Easing.Quadratic.Out)
-
-        tween1 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},375)
-        .chain(tween2)
-        .easing(TWEEN.Easing.Quadratic.Out)
-
-		new TWEEN.Tween(prova)
-		.to({x: prova.x-0.3, y:prova.y, z:prova.z}, 375)
-        .chain(tween1)
-		.easing(TWEEN.Easing.Quadratic.Out)
-		.start();
-
-        prova = model.getObjectByName('LowerLegL').rotation;
-
-        tween3 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},375)
-        .easing(TWEEN.Easing.Quadratic.Out)
-
-		tween2 = new TWEEN.Tween(prova)
-		.to({x: prova.x+0.3, y:prova.y, z:prova.z}, 375)
-        .chain(tween3)
-		.easing(TWEEN.Easing.Quadratic.Out)
-
-        tween1 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},375)
-        .chain(tween2)
-        .easing(TWEEN.Easing.Quadratic.Out)
-
-		new TWEEN.Tween(prova)
-		.to({x: prova.x+0.3, y:prova.y, z:prova.z}, 375)
-        .chain(tween1)
-		.easing(TWEEN.Easing.Quadratic.Out)
-		.start();
-
-        prova = model.getObjectByName('Body').position;
-
-        tween3 = new TWEEN.Tween(prova)
-		.onComplete(function() {
-			isJumping=false;
+		.onComplete(function(){
+			idleInterval+=2;
 		})
-        .to({x:prova.x,y:prova.y,z:prova.z},375)
-        .easing(TWEEN.Easing.Quadratic.Out)
-
-		tween2 = new TWEEN.Tween(prova)
-		.to({x: prova.x, y:prova.y-0.001, z:prova.z}, 375)
-        .chain(tween3)
-		.easing(TWEEN.Easing.Quadratic.Out)
-
-        tween1 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},375)
-        .chain(tween2)
-        .easing(TWEEN.Easing.Quadratic.Out)
-
-		new TWEEN.Tween(prova)
-		.to({x: prova.x, y:prova.y-0.001, z:prova.z}, 375)
-        .chain(tween1)
+		.to({x: prova.x, y:idleInterval*Math.PI, z:prova.z}, 1250)
 		.easing(TWEEN.Easing.Quadratic.Out)
 		.start();
+
     }
 
     static collect(){
@@ -840,6 +726,7 @@ class Animator {
         .to({x: prova.x, y: prova.y, z: prova.z}, 125)
         .onComplete(function() {
             isJumping = false;
+			time =0;
         })
         .easing(TWEEN.Easing.Quadratic.Out)
 
@@ -869,11 +756,11 @@ class Animator {
 					prova = lanes_mesh[j].mesh.children[i].position;
 
 					tween2 = new TWEEN.Tween(prova)
-					.to({x: prova.x, y:prova.y, z:prova.z}, 500)
+					.to({x: prova.x, y:0.4, z:prova.z}, 500)
 					.easing(TWEEN.Easing.Quadratic.Out)
 				
 					new TWEEN.Tween(prova)
-					.to({x: prova.x, y:prova.y-0.1, z:prova.z}, 500)
+					.to({x: prova.x, y:0.3, z:prova.z}, 500)
 					.chain(tween2)
 					.easing(TWEEN.Easing.Quadratic.Out)
 					.start();
@@ -944,6 +831,8 @@ function SetUp(){
 		model.scale.x=model.scale.y=model.scale.z=0.2;
 		model.rotation.y=3.2;
 		document.addEventListener("keydown", onKeyDown, false);
+		time=0;
+		interval1 = setInterval(function() {time +=1},1000)
 		scene.add(model);
 		position = model.position.x;
 		running = true;
@@ -1277,9 +1166,10 @@ function render() {
 	if(game_over==true){
 		finish();
 	}
-	/*if(isJumping==false){
+	if(isJumping == false && time==10){
+		time =0;
 		Animator.idle();
-	}*/
+	}
 }
 
 function onKeyDown(event){

@@ -49,6 +49,7 @@ body {
 
 #money_score, #title_score {
   font-size: 2rem;
+  color: white;
 }
 
 #home_page, #finish {
