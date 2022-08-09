@@ -37,9 +37,12 @@ document.getElementById("home_page").style.left = (camera.aspect*12) + '%';
 document.getElementById("finish").style.left = (camera.aspect*12) + '%';
 document.getElementById("rules").style.left = (camera.aspect*15.5) + '%';
 document.getElementById("buttons").style.left = (camera.aspect*18.5) + '%';
-if(camera.aspect*40 <67){
+if(camera.aspect <0.89){
+	document.getElementById("special_button").style.left = (camera.aspect*100) + '%';
+}else if(camera.aspect >0.89 && camera.aspect <1.67){
 	document.getElementById("special_button").style.left = (camera.aspect*50) + '%';
-}else{
+}
+else{
 	document.getElementById("special_button").style.left = (camera.aspect*30) + '%';
 }
 document.getElementById("button_up").style.left = (camera.aspect)*0.2 + '%';
@@ -888,9 +891,13 @@ function onWindowResize() {
 	document.getElementById("finish").style.left = (camera.aspect*12) + '%';
 	document.getElementById("rules").style.left = (camera.aspect*15.5) + '%';
 	document.getElementById("buttons").style.left = (camera.aspect*18.5) + '%';
-	if(camera.aspect*40 <67){
+	console.log(camera.aspect)
+	if(camera.aspect <0.89){
+		document.getElementById("special_button").style.left = (camera.aspect*100) + '%';
+	}else if(camera.aspect >0.89 && camera.aspect <1.67){
 		document.getElementById("special_button").style.left = (camera.aspect*50) + '%';
-	}else{
+	}
+	else{
 		document.getElementById("special_button").style.left = (camera.aspect*30) + '%';
 	}
 	document.getElementById("button_up").style.left = (camera.aspect)*0.2 + '%';
