@@ -65,7 +65,13 @@ function resizeButtons(){
 var renderer = new THREE.WebGLRenderer();
 
 //light
-const Light = new THREE.DirectionalLight(0xffffff);
+var light = new THREE.DirectionalLight(0xffffff,0.6);
+light.position.set(30, 20, 10);
+//light.target.position.set(-1, -0.1, -0.85);
+scene.add(light);
+
+var ambientLight = new THREE.AmbientLight(0x404040);
+scene.add(ambientLight)
 
 // texture
 const texture_loader = new THREE.TextureLoader()
@@ -443,7 +449,7 @@ class Object {
 		});
 		const road = new THREE.Mesh(geometry, material);
 		road.position.y = -0.2;
-		scene.add(road);
+		road.receiveShadow = true;
 		return road;
 	}
 
@@ -454,6 +460,7 @@ class Object {
 		});
 		const grass = new THREE.Mesh(geometry, material);
 		grass.position.y = -0.2;
+		grass.receiveShadow = true;
 		return grass;
 	}
 }
@@ -607,7 +614,6 @@ class Animator {
             isJumping = false;
 			megaJump = false;
 			document.getElementById("special_button").style.display = 'none';
-			time = 0;
         })
         .easing(TWEEN.Easing.Quadratic.Out)
 
@@ -661,7 +667,6 @@ class Animator {
         .onComplete(function() {
 			position +=1*type;
             isJumping = false;
-			time = 0;
         })
         .easing(TWEEN.Easing.Quadratic.Out)
 
@@ -697,7 +702,7 @@ class Animator {
 		.onComplete(function(){
 			idleInterval+=2;
 		})
-		.to({x: prova.x, y:idleInterval*Math.PI, z:prova.z}, 1250)
+		.to({x: prova.x, y:idleInterval*Math.PI, z:prova.z}, 1000)
 		.easing(TWEEN.Easing.Quadratic.Out)
 		.start();
 
@@ -726,7 +731,6 @@ class Animator {
         .to({x: prova.x, y: prova.y, z: prova.z}, 125)
         .onComplete(function() {
             isJumping = false;
-			time =0;
         })
         .easing(TWEEN.Easing.Quadratic.Out)
 
@@ -897,9 +901,6 @@ function Scene() {
 	texture_loader.load('images/money_texture.jpg', function(texture){
 		money_texture = texture;
 	});
-
-	Light.position.set(30,20,10);
-	scene.add(Light);
 
 	camera.position.z = 5;
 
@@ -1166,8 +1167,8 @@ function render() {
 	if(game_over==true){
 		finish();
 	}
-	if(isJumping == false && time==10){
-		time =0;
+	if(time==10){
+		time=0;
 		Animator.idle();
 	}
 }
