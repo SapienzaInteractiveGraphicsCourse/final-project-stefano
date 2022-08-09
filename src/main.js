@@ -38,7 +38,14 @@ document.getElementById("finish").style.left = (camera.aspect*12) + '%';
 document.getElementById("rules").style.left = (camera.aspect*15.5) + '%';
 function resizeButtons(){
 	if(document.getElementById("special_button").style.display == 'none'){
-		document.getElementById("buttons").style.left = (camera.aspect*22) + '%';
+		if(camera.aspect <0.89){
+			document.getElementById("buttons").style.left = (camera.aspect*30) + '%';
+		}else if(camera.aspect >0.89 && camera.aspect <1.67){
+			document.getElementById("buttons").style.left = (camera.aspect*22) + '%';
+		}
+		else{
+			document.getElementById("buttons").style.left = (camera.aspect*19) + '%';
+		}
 	}else{
 		document.getElementById("buttons").style.left = (camera.aspect*18.5) + '%';
 	}
