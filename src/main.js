@@ -34,6 +34,15 @@ const loader = new GLTFLoader();
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(30 , window.innerWidth/window.innerHeight, 0.25, 1000 );
 document.getElementById("home_page").style.left = (camera.aspect*12) + '%';
+document.getElementById("finish").style.left = (camera.aspect*12) + '%';
+document.getElementById("rules").style.left = (camera.aspect*15.5) + '%';
+document.getElementById("buttons").style.left = (camera.aspect*18.5) + '%';
+if(camera.aspect*40 <67){
+	document.getElementById("special_button").style.left = (camera.aspect*50) + '%';
+}else{
+	document.getElementById("special_button").style.left = (camera.aspect*30) + '%';
+}
+document.getElementById("button_up").style.left = (camera.aspect)*0.2 + '%';
 var renderer = new THREE.WebGLRenderer();
 
 //light
@@ -876,6 +885,15 @@ function onWindowResize() {
     camera.updateProjectionMatrix()
     renderer.setSize(window.innerWidth, window.innerHeight)
 	document.getElementById("home_page").style.left = (camera.aspect*12) + '%';
+	document.getElementById("finish").style.left = (camera.aspect*12) + '%';
+	document.getElementById("rules").style.left = (camera.aspect*15.5) + '%';
+	document.getElementById("buttons").style.left = (camera.aspect*18.5) + '%';
+	if(camera.aspect*40 <67){
+		document.getElementById("special_button").style.left = (camera.aspect*50) + '%';
+	}else{
+		document.getElementById("special_button").style.left = (camera.aspect*30) + '%';
+	}
+	document.getElementById("button_up").style.left = (camera.aspect)*0.2 + '%';
 }
 
 function SetUp(){
@@ -1312,17 +1330,16 @@ function onKeyDown(event){
 			if(megaJump == false || isJumping==true) break;
 			if(back_counter < 3){
 				for(var i =0;i<3-back_counter;i++){
-					next_indexes.push(indexes[indexes.length-1]+1);
+					next_indexes.push(indexes[indexes.length-1]+1+i);
 					next_lane.push(new Lane(next_indexes[next_indexes.length-1]));
 				}
 				score+=3
 			}
-			scene.add(next_lane[next_lane.length-2].mesh);
-			scene.add(next_lane[next_lane.length-1].mesh);
-			indexes.push(next_indexes[next_indexes.length-2]);
-			indexes.push(next_indexes[next_indexes.length-1]);
-			lanes_mesh.push(next_lane[next_lane.length-2]);
-			lanes_mesh.push(next_lane[next_lane.length-1]);
+			for(var i=3;i>0;i--){
+				scene.add(next_lane[next_lane.length-i].mesh);
+				indexes.push(next_indexes[next_indexes.length-i]);
+				lanes_mesh.push(next_lane[next_lane.length-i]);
+			}
 			previous = lanes_mesh[next_index+1];
 			current_lane = lanes_mesh[next_index+2];
 			next = lanes_mesh[next_index+3];

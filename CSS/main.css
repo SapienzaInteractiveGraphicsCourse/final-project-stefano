@@ -54,7 +54,6 @@ body {
 #home_page, #finish {
     position: absolute;
     top: 10%;
-    left: 27%;
     font-family: 'KGHAPPY';
 }
 
@@ -68,7 +67,6 @@ body {
 
 #rules {
     position: absolute;
-    left: 36%;
     font-family: 'KGHAPPY' !important;
 }
 
@@ -83,20 +81,22 @@ body {
 
 #buttons {
   position: absolute;
-  left: 40%;
   top: 73%;
   transform: scale(0.8);
 }
 
 #special_button {
   position: absolute;
-  left: 30%;
   top: 82%;
   transform: scale(0.8);
 }
 
 #button_up {
-  left: 1%;
   top: 13%;
   width: 98%;
+}
+
+#finish_home_page, #finish_replay {
+  margin-top: 5% !important;
+  margin-bottom: 3% !important;
 }
