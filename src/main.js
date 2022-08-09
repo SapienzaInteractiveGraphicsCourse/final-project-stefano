@@ -36,16 +36,22 @@ var camera = new THREE.PerspectiveCamera(30 , window.innerWidth/window.innerHeig
 document.getElementById("home_page").style.left = (camera.aspect*12) + '%';
 document.getElementById("finish").style.left = (camera.aspect*12) + '%';
 document.getElementById("rules").style.left = (camera.aspect*15.5) + '%';
-document.getElementById("buttons").style.left = (camera.aspect*18.5) + '%';
-if(camera.aspect <0.89){
-	document.getElementById("special_button").style.left = (camera.aspect*100) + '%';
-}else if(camera.aspect >0.89 && camera.aspect <1.67){
-	document.getElementById("special_button").style.left = (camera.aspect*50) + '%';
+function resizeButtons(){
+	if(document.getElementById("special_button").style.display == 'none'){
+		document.getElementById("buttons").style.left = (camera.aspect*22) + '%';
+	}else{
+		document.getElementById("buttons").style.left = (camera.aspect*18.5) + '%';
+	}
+	if(camera.aspect <0.89){
+		document.getElementById("special_button").style.left = (camera.aspect*100) + '%';
+	}else if(camera.aspect >0.89 && camera.aspect <1.67){
+		document.getElementById("special_button").style.left = (camera.aspect*50) + '%';
+	}
+	else{
+		document.getElementById("special_button").style.left = (camera.aspect*30) + '%';
+	}
+	document.getElementById("button_up").style.left = (camera.aspect)*0.2 + '%';
 }
-else{
-	document.getElementById("special_button").style.left = (camera.aspect*30) + '%';
-}
-document.getElementById("button_up").style.left = (camera.aspect)*0.2 + '%';
 var renderer = new THREE.WebGLRenderer();
 
 //light
@@ -890,8 +896,11 @@ function onWindowResize() {
 	document.getElementById("home_page").style.left = (camera.aspect*12) + '%';
 	document.getElementById("finish").style.left = (camera.aspect*12) + '%';
 	document.getElementById("rules").style.left = (camera.aspect*15.5) + '%';
-	document.getElementById("buttons").style.left = (camera.aspect*18.5) + '%';
-	console.log(camera.aspect)
+	if(document.getElementById("special_button").style.display == 'none'){
+		document.getElementById("buttons").style.left = (camera.aspect*19.5) + '%';
+	}else{
+		document.getElementById("buttons").style.left = (camera.aspect*18.5) + '%';
+	}
 	if(camera.aspect <0.89){
 		document.getElementById("special_button").style.left = (camera.aspect*100) + '%';
 	}else if(camera.aspect >0.89 && camera.aspect <1.67){
@@ -957,6 +966,7 @@ function Scene() {
 	document.getElementById("rules").style.display = 'none';
 	document.getElementById("buttons").style.display = 'none';
 	document.getElementById("special_button").style.display = 'none';
+	resizeButtons()
 
 	camera.position.set(4,5,5);
 	camera.lookAt(new THREE.Vector3(0,2,0));
@@ -1256,6 +1266,7 @@ function render() {
 	animation();
 	collision();
 	update_score();
+	resizeButtons();
 	if(game_over==true){
 		finish();
 	}
