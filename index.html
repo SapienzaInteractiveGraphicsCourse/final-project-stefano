@@ -11,10 +11,6 @@
 	</head>
 
 	<body>
-		<div id="score">
-			<div id="title_score"> Score: </div>
-			<div id="money_score"> Money: </div>	
-		</div>	
 		<div id="home_page">
 			<div id="home_page_column">
 				<div id="home_page_title"> Robot Road </div>
@@ -26,21 +22,28 @@
 				</div>
 			</div>
 		</div>
-		<div id="finish">
-			<div id="finish_column">
-				<div id="finish_title"> GAME OVER </div>
-				<div id="finish_score"> Score: </div>
-				<div id="finish_money"> Money: </div>
-				<div id="final_score"> Final Score: </div>
-				<div>
-					<button id="finish_replay" class="button-54"> PLAY AGAIN </button>
-				</div>
-				<div>
-					<button id="finish_home_page" class="button-54"> HOME </button>
-				</div>
+		<div id="score">
+			<div id="title_score"> Score: </div>
+			<div id="money_score"> Money: </div>	
+		</div>
+		<div id="buttons">
+			<div id="buttons_column">
+				<button id="button_up" class = "button-54"> <i class="fa fa-angle-up" style='font-size:36px'></i> </button>
+				<table width="20">
+					<tr>
+						<td>
+							<button id="button_left" class="button-54"> <i class="fa fa-angle-left" style='font-size:36px'></i> </button>
+						</td>
+						<td>
+							<button id="button_down" class="button-54"> <i class="fa fa-angle-down" style='font-size:36px'></i> </button>	
+						</td>
+						<td>
+							<button id="button_right" class="button-54"> <i class="fa fa-angle-right" style='font-size:36px'></i> </button>	
+						</td>
+					</tr>
+				</table>
 			</div>
 		</div>
-
 		<div id="rules">
 			<div id="rules_column">
 				<div id="rules_title"> RULES </div>
@@ -60,27 +63,42 @@
 				</div>
 			</div>
 		</div>
-
-		<div id="buttons">
-			<div id="buttons_column">
-				<button id="button_up" class = "button-54"> <i class="fa fa-angle-up" style='font-size:36px'></i> </button>
-				<table width="20">
-					<tr>
-						<td>
-							<button id="button_left" class="button-54"> <i class="fa fa-angle-left" style='font-size:36px'></i> </button>
-						</td>
-						<td>
-							<button id="button_down" class="button-54"> <i class="fa fa-angle-down" style='font-size:36px'></i> </button>	
-						</td>
-						<td>
-							<button id="button_right" class="button-54"> <i class="fa fa-angle-right" style='font-size:36px'></i> </button>	
-						</td>
-					</tr>
-				</table>
-			</div>
+		<div id="choose">
+			<div id="choose_title"> Choose the color </div>
+			<table>
+				<tr>
+					<th> <button class="button-54" id="square_blu"> <i class="fa fa-check" aria-hidden="true" ></i> </button> </th>
+					<th> <button class="button-54" id="square_green"><i class="fa fa-check" aria-hidden="true"></i> </button> </th>
+					<th> <button class="button-54" id="square_yellow"><i class="fa fa-check" aria-hidden="true"></i></button> </th>
+					<th> <button class="button-54" id="square_red"><i class="fa fa-check" aria-hidden="true"></i></button> </th>
+					<th> <button class="button-54" id="square_normal"><i class="fa fa-check" aria-hidden="true"></i></button> </th>
+				</tr>
+			</table>
+			<table id="choose_table">
+				<tr>
+					<th> <button class="button-54" id="choose_easy"> EASY </button> </th>
+					<th> <button class="button-54" id="choose_medium"> MEDIUM </button> </th>
+					<th> <button class="button-54" id="choose_hard"> HARD </button> </th>
+				</tr>
+			</table>
+			<button class="button-54" id="choose_start"> START </button>
 		</div>
 		<div id="special_button">
 			<button id="space_button" class="button-54"> <i class="material-icons" style="font-size:36px">space_bar</i> </button>
+		</div>	
+		<div id="finish">
+			<div id="finish_column">
+				<div id="finish_title"> GAME OVER </div>
+				<div id="finish_score"> Score: </div>
+				<div id="finish_money"> Money: </div>
+				<div id="final_score"> Final Score: </div>
+				<div>
+					<button id="finish_replay" class="button-54"> PLAY AGAIN </button>
+				</div>
+				<div>
+					<button id="finish_home_page" class="button-54"> HOME </button>
+				</div>
+			</div>
 		</div>
 	</body>
 </html>

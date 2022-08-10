@@ -8,6 +8,12 @@ var money_div = document.getElementById("money_score");
 var finish_score_div = document.getElementById("finish_score");
 var finish_money_div = document.getElementById("finish_money");
 var final_score_div = document.getElementById("final_score");
+document.getElementById('square_blu').children[0].style.display = 'none';
+document.getElementById('square_red').children[0].style.display = 'none';
+document.getElementById('square_green').children[0].style.display = 'none';
+document.getElementById('square_yellow').children[0].style.display = 'none';
+document.getElementById('square_normal').children[0].style.display = 'grid';
+document.getElementById('choose_medium').style.backgroundColor = '#FF0000';
 var score;
 var money;
 
@@ -39,6 +45,8 @@ var camera = new THREE.PerspectiveCamera(30 , window.innerWidth/window.innerHeig
 document.getElementById("home_page").style.left = (camera.aspect*12) + '%';
 document.getElementById("finish").style.left = (camera.aspect*12) + '%';
 document.getElementById("rules").style.left = (camera.aspect*15.5) + '%';
+document.getElementById("choose").style.left = (camera.aspect*12) + '%';
+document.getElementById("choose_start").style.left = (camera.aspect*17) + '%';
 function resizeButtons(){
 	if(document.getElementById("special_button").style.display == 'none'){
 		if(camera.aspect <0.89){
@@ -67,7 +75,6 @@ var renderer = new THREE.WebGLRenderer();
 //light
 var light = new THREE.DirectionalLight(0xffffff,0.6);
 light.position.set(30, 20, 10);
-//light.target.position.set(-1, -0.1, -0.85);
 scene.add(light);
 
 var ambientLight = new THREE.AmbientLight(0x404040);
@@ -84,7 +91,7 @@ var car_texture;
 var money_texture;
 
 const treeHeights = [0.5,1,1.5];
-const speeds = [0.02,0.025,0.03];
+var speeds = [0.03];
 
 // generate lanes
 var previous_lane;
@@ -794,6 +801,8 @@ function onWindowResize() {
 	document.getElementById("home_page").style.left = (camera.aspect*12) + '%';
 	document.getElementById("finish").style.left = (camera.aspect*12) + '%';
 	document.getElementById("rules").style.left = (camera.aspect*15.5) + '%';
+	document.getElementById("choose").style.left = (camera.aspect*12) + '%';
+	document.getElementById("choose_start").style.left = (camera.aspect*17) + '%';
 	if(document.getElementById("special_button").style.display == 'none'){
 		document.getElementById("buttons").style.left = (camera.aspect*19.5) + '%';
 	}else{
@@ -827,35 +836,68 @@ function SetUp(){
 	previous = lanes_mesh[next_index-2];
 	next2 = lanes_mesh[next_index+2];
 	camera.position.set(4,5,5);
+	model.position.x=-1;
+	model.position.y=-0.1;
+	model.position.z=-0.85;
+	model.scale.x=model.scale.y=model.scale.z=0.2;
+	model.rotation.y=3.2;
+	document.addEventListener("keydown", onKeyDown, false);
+	time=0;
+	interval1 = setInterval(function() {time +=1},1000)
+	position = model.position.x;
+	running = true;
+	previous_lane = [];
+	previous_index = [];
+	next_lane = [];
+	next_indexes = [];
+	front = true;
+	back = true;
+	left = true;
+	right = true;
+	spawn = true;
+	megaJump = false;
+	isJumping = false;
+	back_counter = 0;
+	document.getElementById("buttons").style.display = 'grid';
+}
+
+function load_model(){
 	loader.load('models/RobotExpressive.glb', function(gltf) {
 		model = gltf.scene;
 		model.position.x=-1;
-		model.position.y=-0.1;
+		model.position.y=0.85;
 		model.position.z=-0.85;
-		model.scale.x=model.scale.y=model.scale.z=0.2;
-		model.rotation.y=3.2;
-		document.addEventListener("keydown", onKeyDown, false);
-		time=0;
-		interval1 = setInterval(function() {time +=1},1000)
+		model.rotation.y = 0.8;
+		model.scale.x=model.scale.y=model.scale.z = 0.3;
 		scene.add(model);
-		position = model.position.x;
-		running = true;
-		previous_lane = [];
-		previous_index = [];
-		next_lane = [];
-		next_indexes = [];
-		front = true;
-		back = true;
-		left = true;
-		right = true;
-		spawn = true;
-		megaJump = false;
-		isJumping = false;
-		back_counter = 0;
-		document.getElementById("buttons").style.display = 'grid';
 	}, undefined, function(e) {
 		console.error(e);
 	});
+}
+
+function change_color(code,type){
+	const types = ['blu','green','yellow','red','normal'];
+	var selected = 'square_'+ type;
+	for(var i=0;i<5;i++){
+		var button = 'square_'+types[i];
+		if(button != selected) document.getElementById(button).children[0].style.display = 'none';
+	}
+	document.getElementById(selected).children[0].style.display = 'grid';
+	model.traverse( ( object ) => {
+
+        if ( object.isMesh ) {
+            function componentToHex(c) {
+                var hex = c.toString(16);
+                return hex.length == 1 ? "0" + hex : hex;
+              }
+            var color = object.material.color;
+            color = "#" + componentToHex(Math.round(color.r)) + componentToHex(Math.round(color.g)) + componentToHex(Math.round(color.b));
+            if(color != '#000000'){
+                object.material.color.set(code)
+            }
+        }
+    
+    } );
 }
 
 function Scene() {
@@ -866,6 +908,7 @@ function Scene() {
 	document.getElementById("rules").style.display = 'none';
 	document.getElementById("buttons").style.display = 'none';
 	document.getElementById("special_button").style.display = 'none';
+	document.getElementById("choose").style.display = 'none';
 	resizeButtons()
 
 	camera.position.set(4,5,5);
@@ -907,6 +950,16 @@ function Scene() {
 	animate();
 }
 
+function change_background(type){
+	const types = ['easy','medium','hard'];
+	var selected = 'choose_'+ type;
+	for(var i=0;i<3;i++){
+		var button = 'choose_'+types[i];
+		if(button != selected) document.getElementById(button).style.backgroundColor = '#FFFFFF';
+	}
+	document.getElementById(selected).style.backgroundColor = '#FF0000';
+}
+
 function buttons() {
 	document.getElementById("button_up").onclick = (button) => {
 		onKeyDown({keyCode: 38});
@@ -939,8 +992,14 @@ function buttons() {
 	}
 
 	document.getElementById("home_page_start").onclick = () => {
-		SetUp();
+		load_model();
 		document.getElementById("home_page").style.display = 'none';
+		document.getElementById("choose").style.display = 'grid';
+	}
+
+	document.getElementById("choose_start").onclick = () => {
+		SetUp();
+		document.getElementById("choose").style.display='none';
 		document.getElementById("score").style.display = 'grid';
 		document.getElementById("buttons").style.display = 'grid';
 		score_div.innerText = 'SCORE: ' + score;
@@ -957,6 +1016,36 @@ function buttons() {
 		document.getElementById("finish").style.display = 'none';
 		document.getElementById("score").style.display = 'grid';
 	}
+
+	document.getElementById("square_blu").onclick = () => {
+		change_color(0x0000FF,'blu');
+	}
+	document.getElementById("square_red").onclick = () => {
+		change_color(0xFF0000,'red');
+	}
+	document.getElementById("square_yellow").onclick = () => {
+		change_color(0xFFFF00,'yellow');
+	}
+	document.getElementById("square_green").onclick = () => {
+		change_color(0x00FF00,'green');
+	}
+	document.getElementById("square_normal").onclick = () => {
+		change_color(0x8E4B00,'normal');
+	}
+	document.getElementById("choose_easy").onclick = () => {
+		change_background('easy');
+		speeds = [0.01];
+	}
+	document.getElementById("choose_medium").onclick = () => {
+		change_background('medium');
+		speeds = [0.03];
+	}
+	document.getElementById("choose_hard").onclick = () => {
+		change_background('hard');
+		speeds = [0.02,0.025,0.03];
+	}
+
+	
 }
 
 function Clear() {

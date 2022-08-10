@@ -42,7 +42,7 @@ body {
   margin: 0;
 }
 
-#score {
+#score, #choose {
   position: absolute;
   font-family: 'KGHAPPY';
 }
@@ -60,6 +60,10 @@ body {
 
 #home_page_title, #rules_title, #finish_title {
     font-size: 6rem;
+}
+
+#choose_title {
+  font-size: 4rem;
 }
 
 #home_page_column, #rules_column, #finish_column {
@@ -100,4 +104,44 @@ body {
 #finish_home_page, #finish_replay {
   margin-top: 5% !important;
   margin-bottom: 3% !important;
+}
+
+#choose_table {
+  margin-top: 35%;
+}
+
+#choose_start {
+  margin-top: 0% !important;
+  width: 25%;
+}
+
+#square_blu {
+  width: 90px;
+  height: 90px;
+  background: #0000FF;
+  margin-top: 0% !important;
+}
+#square_red {
+  width: 90px;
+  height: 90px;
+  background: #FF0000;
+  margin-top: 0% !important;
+}
+#square_yellow {
+  width: 90px;
+  height: 90px;
+  background: #FFFF00;
+  margin-top: 0% !important;
+}
+#square_green {
+  width: 90px;
+  height: 90px;
+  background: #00FF00;
+  margin-top: 0% !important;
+}
+#square_normal {
+  width: 90px;
+  height: 90px;
+  background: #B45F06;
+  margin-top: 0% !important;
 }
