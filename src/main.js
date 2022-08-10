@@ -3,16 +3,11 @@ import {GLTFLoader} from 'https://cdn.skypack.dev/three@0.134.0/examples/jsm/loa
 import { TWEEN } from 'https://cdn.skypack.dev/three@0.134.0/examples/jsm/libs/tween.module.min';
 
 // update scores
-var score_div = document.getElementById("title_score");
+var score_div = document.getElementById("step_score");
 var money_div = document.getElementById("money_score");
-var finish_score_div = document.getElementById("finish_score");
+var finish_score_div = document.getElementById("finish_step");
 var finish_money_div = document.getElementById("finish_money");
 var final_score_div = document.getElementById("final_score");
-document.getElementById('square_blu').children[0].style.display = 'none';
-document.getElementById('square_red').children[0].style.display = 'none';
-document.getElementById('square_green').children[0].style.display = 'none';
-document.getElementById('square_yellow').children[0].style.display = 'none';
-document.getElementById('square_normal').children[0].style.display = 'grid';
 document.getElementById('choose_medium').style.backgroundColor = '#FF0000';
 var score;
 var money;
@@ -46,7 +41,7 @@ document.getElementById("home_page").style.left = (camera.aspect*12) + '%';
 document.getElementById("finish").style.left = (camera.aspect*12) + '%';
 document.getElementById("rules").style.left = (camera.aspect*15.5) + '%';
 document.getElementById("choose").style.left = (camera.aspect*12) + '%';
-document.getElementById("choose_start").style.left = (camera.aspect*17) + '%';
+document.getElementById("choose_start").style.left = (camera.aspect*16) + '%';
 function resizeButtons(){
 	if(document.getElementById("special_button").style.display == 'none'){
 		if(camera.aspect <0.89){
@@ -742,17 +737,17 @@ class Animator {
         .easing(TWEEN.Easing.Quadratic.Out)
 
         tween3 = new TWEEN.Tween(prova)
-        .to({x: prova.x, y: prova.y-1, z: prova.z}, 250)
+        .to({x: prova.x, y: prova.y-0.7, z: prova.z}, 250)
         .chain(tween4)
         .easing(TWEEN.Easing.Quadratic.Out)
 
         tween2 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y+1,z:prova.z},125)
+        .to({x:prova.x,y:prova.y+0.7,z:prova.z},125)
         .chain(tween3)
         .easing(TWEEN.Easing.Quadratic.Out)
         
         new TWEEN.Tween(prova)
-        .to({x: prova.x, y: prova.y-1, z: prova.z}, 125)
+        .to({x: prova.x, y: prova.y-0.7, z: prova.z}, 125)
         .chain(tween2)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
@@ -868,8 +863,13 @@ function load_model(){
 		model.position.y=0.85;
 		model.position.z=-0.85;
 		model.rotation.y = 0.8;
+		console.log(document.getElementById("choose_title").style)
+		//if(document.getElementById("choose").style.transform == )
 		model.scale.x=model.scale.y=model.scale.z = 0.3;
 		scene.add(model);
+		change_color(0x8E4B00,'normal');
+		document.getElementById("home_page").style.display = 'none';
+		document.getElementById("choose").style.display = 'grid';
 	}, undefined, function(e) {
 		console.error(e);
 	});
@@ -899,6 +899,7 @@ function change_color(code,type){
     
     } );
 }
+
 
 function Scene() {
 	
@@ -993,8 +994,6 @@ function buttons() {
 
 	document.getElementById("home_page_start").onclick = () => {
 		load_model();
-		document.getElementById("home_page").style.display = 'none';
-		document.getElementById("choose").style.display = 'grid';
 	}
 
 	document.getElementById("choose_start").onclick = () => {
@@ -1177,7 +1176,7 @@ function collision() {
 
 function finish(){
 	Clear();
-	finish_score_div.innerHTML = 'Score: ' + score;
+	finish_score_div.innerHTML = 'Step: ' + score;
 	finish_money_div.innerHTML = 'Money: ' + money;
 	final_score_div.innerHTML = 'Final Score: ' + (score+10*money);
 	document.getElementById("buttons").style.display = 'none';
@@ -1186,7 +1185,7 @@ function finish(){
 }
 
 function update_score(){
-	score_div.innerHTML = 'SCORE: ' + score;
+	score_div.innerHTML = 'STEP: ' + score;
 	money_div.innerHTML = 'MONEY: ' + money;
 }
 
