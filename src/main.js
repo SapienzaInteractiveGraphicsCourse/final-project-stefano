@@ -37,8 +37,8 @@ var camera = new THREE.PerspectiveCamera(30 , window.innerWidth/window.innerHeig
 var renderer = new THREE.WebGLRenderer();
 
 //light
-var light = new THREE.DirectionalLight(0xffffff,0.6);
-light.position.set(30, 20, 10);
+var light = new THREE.DirectionalLight(0xffffff);
+light.position.set(10, 20, 5);
 scene.add(light);
 
 var ambientLight = new THREE.AmbientLight(0x404040);
@@ -442,9 +442,7 @@ class Object {
 
 	static Road() {
 		const geometry = new THREE.BoxBufferGeometry(75,0.1,1);
-		const material = new THREE.MeshBasicMaterial({
-			color: 0x444444
-		});
+		const material = new THREE.MeshPhongMaterial({color: 0x444444});
 		const road = new THREE.Mesh(geometry, material);
 		road.position.y = -0.2;
 		road.receiveShadow = true;
@@ -453,9 +451,7 @@ class Object {
 
 	static Grass() {
 		const geometry = new THREE.BoxBufferGeometry(75,0.1,1);
-		const material = new THREE.MeshBasicMaterial({
-			color: 0x78b14b
-		});
+		const material = new THREE.MeshPhongMaterial({color: 0x78b14b});
 		const grass = new THREE.Mesh(geometry, material);
 		grass.position.y = -0.2;
 		grass.receiveShadow = true;

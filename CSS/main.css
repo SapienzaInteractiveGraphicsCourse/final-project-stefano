@@ -111,6 +111,10 @@ body {
   color: white;
 }
 
+#score {
+  left: 1%;
+}
+
 #home_page, #finish {
   top: 10%;
   left: 27%;
