@@ -21,7 +21,8 @@ var game_over = false;
 var isJumping;
 var megaJump;
 var spawn;
-var spawnA = [-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0]
+var spawnA = [-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0];
+var spawnB = [2,1,0,-1,-2,-3,-4,-5,-6,-7,-8];
 var interval;
 var interval1;
 var idleInterval = 2;
@@ -89,10 +90,17 @@ class Lane {
 				this.mesh = Object.Road();
 				this.speed = speeds[Math.floor(Math.random()*speeds.length)];
 				this.number_object = 0;
+				this.inverted = Math.random() >= 0.5? true: false;
 
 				this.vehicles = [1,2,3].map(() => {
-					const vehicle = Object.Car();
-					vehicle.position.x = -17;
+					var vehicle;
+					if(this.inverted) {
+						vehicle = Object.Car(1);
+						vehicle.position.x = -17;
+					}else{
+						vehicle = Object.Car(-1);
+						vehicle.position.x = 9;
+					}
 					vehicle.userData.timestamp = Math.floor((Date.now()/1000))+Math.floor(((Math.random()*20)));
 					return vehicle;
 				})
@@ -115,9 +123,17 @@ class Lane {
 				this.speed = speeds[Math.floor(Math.random()*speeds.length)];
 				this.occupied = new Set();
 
+				this.inverted = Math.random() >= 0.5? true: false;
+
 				this.vehicles = [1,2,3].map(() => {
-					const vehicle = Object.Truck();
-					vehicle.position.x = -17;
+					var vehicle;
+					if(this.inverted) {
+						vehicle = Object.Truck(1);
+						vehicle.position.x = -17;
+					}else{
+						vehicle = Object.Truck(-1);
+						vehicle.position.x = 9;
+					}
 					vehicle.userData.timestamp = Math.floor((Date.now()/1000))+Math.floor(((Math.random()*20)));
 					return vehicle;
 				})
@@ -184,7 +200,7 @@ class Object {
 		return wheel;
 	}
 
-	static Car() {
+	static Car(flag) {
 		const car = new THREE.Group();
 		const color = vehicleColors[Math.floor(Math.random()*vehicleColors.length)];
 		var texture;
@@ -200,29 +216,26 @@ class Object {
 			new THREE.MeshPhongMaterial({color: 0xb4c6fc, flatShading:true, map: car_texture})
 		);
 		main.position.y = 0.6;
-		main.position.x = 0.05;
-		main.position.z = -0.1;
 		main.castShadow = true;
 		main.receiveShadow = true;
-		car.add(main)
-		
+
 		const cabin = new THREE.Mesh(
-		  new THREE.BoxBufferGeometry( 1.5, 0.4, 0.7 ), 
-		  [
+			new THREE.BoxBufferGeometry( 1.5, 0.4, 0.7 ), 
+			[
 			new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ),
 			new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ),
 			new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ),
 			new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ),
 			new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ),
 			new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } )
-		  ]);
+		]);
 		cabin.position.y = 0.2;
 		cabin.position.x = 0;
 		cabin.position.z = -0.22;
 		cabin.castShadow = true;
 		cabin.receiveShadow = true;
 		car.add( cabin );
-		
+
 		const backWheel = Object.Wheel();
 		backWheel.position.x = -0.5;
 		car.add( backWheel );
@@ -231,18 +244,39 @@ class Object {
 		frontWheelR.position.x = 0.5;
 		frontWheelR.position.z = -0.45;
 		car.add( frontWheelR );
-	  
+  
 		const frontWheelL = Object.Wheel();
 		frontWheelL.position.x = 0.5;
 		car.add( frontWheelL );
-	  
+  
 		car.castShadow = true;
 		car.receiveShadow = false;
 
-		car.position.z = 0.3;
-		car.position.y= 0.1;
+		if(flag == 1){
+			main.position.x = 0.05;
+			main.position.z = -0.1;
+			car.add(main)
 
-		car.userData = {type: 'car', timestamp: 0, spawn: spawnA[Math.floor(Math.random()*spawnA.length)]};
+			car.position.z = 0.3;
+
+			car.userData = {type: 'car', timestamp: 0, spawn: spawnA[Math.floor(Math.random()*spawnA.length)]};
+		}else{
+			main.position.x = -0.2;
+			main.position.z = -0.3;
+			main.rotation.y=0;
+			car.add(main)
+
+			const backWheel = Object.Wheel();
+			backWheel.position.x = -0.5;
+			backWheel.position.z = -0.45;
+			car.add( backWheel );
+
+			car.position.z = -0.1;
+			car.rotation.y = 3.15;
+
+			car.userData = {type: 'car', timestamp: 0, spawn: spawnB[Math.floor(Math.random()*spawnB.length)]};
+		}
+		car.position.y= 0.1;
 
 		car.scale.x=car.scale.y=car.scale.z=0.8;
 
@@ -310,7 +344,7 @@ class Object {
 		return money;
 	}
 
-	static Truck() {
+	static Truck(flag) {
 		const truck = new THREE.Group();
 		const color = vehicleColors[Math.floor(Math.random()*vehicleColors.length)];
 		var texture;
@@ -380,9 +414,27 @@ class Object {
 		truck.position.y = 0.1;
 		truck.position.z = 0.3;
 
-		truck.userData = {type: 'truck', timestamp: 0, spawn: spawnA[Math.floor(Math.random()*spawnA.length)]};
-
 		truck.scale.x=truck.scale.y=truck.scale.z=0.8;
+
+		if(flag == 1){
+			truck.position.z = 0.3;
+			truck.userData = {type: 'truck', timestamp: 0, spawn: spawnA[Math.floor(Math.random()*spawnA.length)]};
+		} else {
+			const backWheel = Object.Wheel();
+			backWheel.position.x = -1.05;
+			backWheel.position.z = -0.6;
+			truck.add(backWheel);
+	
+			const middleWheel = Object.Wheel();
+			middleWheel.position.x = 0.18;
+			middleWheel.position.z = -0.6;
+			truck.add(middleWheel);
+
+			truck.position.z = -0.1
+			truck.rotation.y = 3.15;
+
+			truck.userData = {type: 'truck', timestamp: 0, spawn: spawnB[Math.floor(Math.random()*spawnB.length)]};
+		}
 
 		return truck;
 
@@ -1091,9 +1143,16 @@ function animation() {
 				if(lanes_mesh[i].vehicles[j].userData.timestamp < Math.floor(Date.now()/1000)){
 					for(var t=0;t<mesh.children.length;t++){
 						if(mesh.children[t].userData.type=='car' || mesh.children[t].userData.type=='truck'){
-							if(mesh.children[t].position.x < lanes_mesh[i].vehicles[j].userData.spawn){
-								spawn = false;
-								break;
+							if(lanes_mesh[i].inverted){
+								if(mesh.children[t].position.x > lanes_mesh[i].vehicles[j].userData.spawn){
+									spawn = false;
+									break;
+								}
+							}else {
+								if(mesh.children[t].position.x < lanes_mesh[i].vehicles[j].userData.spawn){
+									spawn = false;
+									break;
+								}
 							}
 							spawn = true;
 						}
@@ -1109,14 +1168,26 @@ function animation() {
 		for(var j=0; j<mesh.children.length;j++){
 			if(mesh.children[j].userData.type == 'car' || mesh.children[j].userData.type == 'truck'){
 				if(mesh.children[j].userData.timestamp < Math.floor(Date.now() / 1000)){
-					if(mesh.children[j].position.x < 9){
-						mesh.children[j].position.x = Math.round(((mesh.children[j].position.x + lanes_mesh[i].speed)+Number.EPSILON)*100)/100;
-					} else{
-						var vehicle = mesh.children[j].userData.type == 'car'? Object.Car(): Object.Truck();
-						lanes_mesh[i].mesh.children.splice(j,1);
-						vehicle.position.x = -15;
-						lanes_mesh[i].vehicles.push(vehicle);
-						lanes_mesh[i].number_object -=1;
+					if(lanes_mesh[i].inverted){
+						if(mesh.children[j].position.x > -17){
+							mesh.children[j].position.x = Math.round(((mesh.children[j].position.x - lanes_mesh[i].speed)+Number.EPSILON)*100)/100;
+						} else{
+							var vehicle = mesh.children[j].userData.type == 'car'? Object.Car(-1): Object.Truck(-1);
+							lanes_mesh[i].mesh.children.splice(j,1);
+							vehicle.position.x = 9;
+							lanes_mesh[i].vehicles.push(vehicle);
+							lanes_mesh[i].number_object -=1;
+						}
+					}else {
+						if(mesh.children[j].position.x < 9){
+							mesh.children[j].position.x = Math.round(((mesh.children[j].position.x + lanes_mesh[i].speed)+Number.EPSILON)*100)/100;
+						} else{
+							var vehicle = mesh.children[j].userData.type == 'car'? Object.Car(1): Object.Truck(1);
+							lanes_mesh[i].mesh.children.splice(j,1);
+							vehicle.position.x = -17;
+							lanes_mesh[i].vehicles.push(vehicle);
+							lanes_mesh[i].number_object -=1;
+						}
 					}
 				}
 			}
