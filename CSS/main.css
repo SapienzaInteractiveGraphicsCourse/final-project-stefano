@@ -67,6 +67,10 @@
   #buttons {
     left: 17% !important;
   }
+
+  #button_up {
+    top: 17% !important;
+  }
   
   #finish_home_page, #finish_replay {
     margin-top: 5% !important;
