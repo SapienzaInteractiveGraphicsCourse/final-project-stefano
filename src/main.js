@@ -8,7 +8,6 @@ var money_div = document.getElementById("money_score");
 var finish_score_div = document.getElementById("finish_step");
 var finish_money_div = document.getElementById("finish_money");
 var final_score_div = document.getElementById("final_score");
-document.getElementById('choose_medium').style.backgroundColor = '#FF0000';
 var score;
 var money;
 
@@ -19,11 +18,6 @@ var left;
 var right;
 var running = false;
 var game_over = false;
-var tween1;
-var tween2;
-var tween3;
-var tween4;
-var prova;
 var isJumping;
 var megaJump;
 var spawn;
@@ -33,6 +27,7 @@ var interval1;
 var idleInterval = 2;
 var time;
 var replay;
+var color_model = {color: 0x8E4B00, type: 'normal'};
 
 // scene and camera
 const loader = new GLTFLoader();
@@ -71,7 +66,7 @@ var lanes_mesh;
 var indexes;
 var model;
 var current_lane;
-var next_index;
+var next_index = 9;
 var next;
 var next2;
 var previous;
@@ -84,7 +79,6 @@ class Lane {
 		const type = Math.floor(Math.random() * laneTypes.length);
 		this.type = index <= 0 ? 'grass' : laneTypes[type];
 		var position = 7-(index+8);
-
 		switch (this.type) {
 			case 'grass': {
 				this.mesh = Object.Grass();
@@ -94,28 +88,16 @@ class Lane {
 			case 'car': {
 				this.mesh = Object.Road();
 				this.speed = speeds[Math.floor(Math.random()*speeds.length)];
-
-				var i = 2;
-				var timestamp = [];
 				this.number_object = 0;
 
 				this.vehicles = [1,2,3].map(() => {
 					const vehicle = Object.Car();
 					vehicle.position.x = -17;
 					vehicle.userData.timestamp = Math.floor((Date.now()/1000))+Math.floor(((Math.random()*20)));
-					for(var j=0; j<timestamp.length;j++){
-						if(timestamp[j]==vehicle.userData.timestamp){
-							vehicle.userData.timestamp +=3;
-						}
-					}
-					i+=1;
-					timestamp.push(vehicle.userData.timestamp);
-
 					return vehicle;
 				})
 
 				var flag = Math.random() >= 0.5? flag=[1]:flag = [];
-
 
 				this.moneys = flag.map(() => {
 					const money = Object.Money();
@@ -131,34 +113,27 @@ class Lane {
 			case 'truck': {
 				this.mesh = Object.Road();
 				this.speed = speeds[Math.floor(Math.random()*speeds.length)];
-
-				var i = 1;
-				this.timestamp = []
+				this.occupied = new Set();
 
 				this.vehicles = [1,2,3].map(() => {
 					const vehicle = Object.Truck();
 					vehicle.position.x = -17;
 					vehicle.userData.timestamp = Math.floor((Date.now()/1000))+Math.floor(((Math.random()*20)));
-					for(var j=0; j<this.timestamp.length;j++){
-						if(this.timestamp[j]==vehicle.userData.timestamp){
-							vehicle.userData.timestamp +=3;
-						}
-					}
-					i+=1;
-					this.timestamp.push(vehicle.userData.timestamp);
-
 					return vehicle;
 				})
 
 				this.number_object = 0;
-
-				var flag = Math.random() >= 0.5? flag=[1]:flag = [];
-
+				var flag = Math.random()*3;
+				if(flag < 0.4) flag=[];
+				else if(flag >0.8) flag = [1,2];
+				else flag = [1]
 
 				this.moneys = flag.map(() => {
 					const money = Object.Money();
-					var pos = Math.floor(Math.random()*12);
-					money.position.x = -6+pos;
+					var pos = Math.floor(Math.random()*20);
+					while(this.occupied.has(pos)) pos= Math.floor(Math.random()*20);
+					this.occupied.add(pos);
+					money.position.x = -13+pos;
 					this.mesh.add(money);
 					return money;
 				})
@@ -181,13 +156,10 @@ class Lane {
 				});
 				var flag = Math.random() >= 0.5? flag=[1]:flag = [];
 
-
 				this.moneys = flag.map(() => {
 					const money = Object.Money();
-					var pos = Math.floor(Math.random()*12);
-					while(this.occupied.has(pos)){
-						pos= Math.floor(Math.random()*12);
-					}
+					var pos = Math.floor(Math.random()*20);
+					while(this.occupied.has(pos)) pos= Math.floor(Math.random()*20);
 					this.occupied.add(pos);
 					money.position.x = -13+pos;
 					this.mesh.add(money);
@@ -443,90 +415,90 @@ class Animator {
 	constructor() {}
 
     static preprocessing(type, plus){
-        var foot = 'Foot'+type;
+        var footType = 'Foot'+type;
         var xFoot = 0.0008*plus;
-        var upperLeg = 'UpperLeg'+type;
-        var lowerLeg = 'LowerLeg'+type;
+        var upperLegType = 'UpperLeg'+type;
+        var lowerLegType = 'LowerLeg'+type;
 
         Animator.shoulder(type,plus);
 
-        prova = model.getObjectByName(foot).position;
+        var  foot= model.getObjectByName(footType).position;
 
-        tween4 = new TWEEN.Tween(prova)
-		.to({x: prova.x, y:prova.y, z:prova.z}, 125)
+        var tween4 = new TWEEN.Tween(foot)
+		.to({x: foot.x, y:foot.y, z:foot.z}, 125)
 		.easing(TWEEN.Easing.Quadratic.Out)
 
-        tween3 = new TWEEN.Tween(prova)
-		.to({x: prova.x+xFoot, y:prova.y+0.005, z:prova.z+0.005}, 125)
+        var tween3 = new TWEEN.Tween(foot)
+		.to({x: foot.x+xFoot, y:foot.y+0.005, z:foot.z+0.005}, 125)
         .chain(tween4)
 		.easing(TWEEN.Easing.Quadratic.Out)
 
-        tween2 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},125)
+        var tween2 = new TWEEN.Tween(foot)
+        .to({x:foot.x,y:foot.y,z:foot.z},125)
         .chain(tween3)
 		.easing(TWEEN.Easing.Quadratic.Out)
 
-        tween1 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},125)
+        var tween1 = new TWEEN.Tween(foot)
+        .to({x:foot.x,y:foot.y,z:foot.z},125)
         .chain(tween2)
         .easing(TWEEN.Easing.Quadratic.Out)
 
-        new TWEEN.Tween(prova)
-		.to({x: prova.x+xFoot, y:prova.y+0.005, z:prova.z+0.005}, 125)
+        new TWEEN.Tween(foot)
+		.to({x: foot.x+xFoot, y:foot.y+0.005, z:foot.z+0.005}, 125)
         .chain(tween1)
 		.easing(TWEEN.Easing.Quadratic.Out)
 		.start();
 
-        prova = model.getObjectByName(upperLeg).rotation;
+        var  upperLeg= model.getObjectByName(upperLegType).rotation;
 
-        tween4 = new TWEEN.Tween(prova)
-		.to({x: prova.x, y:prova.y, z:prova.z}, 125)
+        tween4 = new TWEEN.Tween(upperLeg)
+		.to({x: upperLeg.x, y:upperLeg.y, z:upperLeg.z}, 125)
         .easing(TWEEN.Easing.Quadratic.Out)
 
-        tween3 = new TWEEN.Tween(prova)
-		.to({x: prova.x-1, y:prova.y, z:prova.z}, 125)
+        tween3 = new TWEEN.Tween(upperLeg)
+		.to({x: upperLeg.x-1, y:upperLeg.y, z:upperLeg.z}, 125)
         .chain(tween4)
         .easing(TWEEN.Easing.Quadratic.Out)
 
-        tween2 = new TWEEN.Tween(prova)
-		.to({x: prova.x, y:prova.y, z:prova.z}, 125)
+        tween2 = new TWEEN.Tween(upperLeg)
+		.to({x: upperLeg.x, y:upperLeg.y, z:upperLeg.z}, 125)
         .chain(tween3)
         .easing(TWEEN.Easing.Quadratic.Out)
 
-        tween1 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},125)
+        tween1 = new TWEEN.Tween(upperLeg)
+        .to({x:upperLeg.x,y:upperLeg.y,z:upperLeg.z},125)
         .chain(tween2)
         .easing(TWEEN.Easing.Quadratic.Out)
 
-		new TWEEN.Tween(prova)
-		.to({x: prova.x-1, y:prova.y, z:prova.z}, 125)
+		new TWEEN.Tween(upperLeg)
+		.to({x: upperLeg.x-1, y:upperLeg.y, z:upperLeg.z}, 125)
         .chain(tween1)
 		.easing(TWEEN.Easing.Quadratic.Out)
 		.start();
 
-        prova = model.getObjectByName(lowerLeg).rotation;
+        var lowerLeg = model.getObjectByName(lowerLegType).rotation;
 
-        tween4 = new TWEEN.Tween(prova)
-		.to({x: prova.x, y:prova.y, z:prova.z}, 125)
+        tween4 = new TWEEN.Tween(lowerLeg)
+		.to({x: lowerLeg.x, y:lowerLeg.y, z:lowerLeg.z}, 125)
         .easing(TWEEN.Easing.Quadratic.Out)
 
-        tween3 = new TWEEN.Tween(prova)
-		.to({x: prova.x+0.9, y:prova.y, z:prova.z}, 125)
+        tween3 = new TWEEN.Tween(lowerLeg)
+		.to({x: lowerLeg.x+0.9, y:lowerLeg.y, z:lowerLeg.z}, 125)
         .chain(tween4)
         .easing(TWEEN.Easing.Quadratic.Out)
 
-        tween2 = new TWEEN.Tween(prova)
-		.to({x: prova.x, y:prova.y, z:prova.z}, 125)
+        tween2 = new TWEEN.Tween(lowerLeg)
+		.to({x: lowerLeg.x, y:lowerLeg.y, z:lowerLeg.z}, 125)
         .chain(tween3)
         .easing(TWEEN.Easing.Quadratic.Out)
 
-        tween1 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},125)
+        tween1 = new TWEEN.Tween(lowerLeg)
+        .to({x:lowerLeg.x,y:lowerLeg.y,z:lowerLeg.z},125)
         .chain(tween2)
         .easing(TWEEN.Easing.Quadratic.Out)
 
-		new TWEEN.Tween(prova)
-		.to({x: prova.x+0.9, y:prova.y, z:prova.z}, 125)
+		new TWEEN.Tween(lowerLeg)
+		.to({x: lowerLeg.x+0.9, y:lowerLeg.y, z:lowerLeg.z}, 125)
         .chain(tween1)
 		.easing(TWEEN.Easing.Quadratic.Out)
 		.start();
@@ -536,25 +508,25 @@ class Animator {
     static shoulder(type,plus){
         var shoulder = 'Shoulder'+type;
         var zShoulder = -1*plus;
-        prova = model.getObjectByName(shoulder).rotation;
+        var rotation = model.getObjectByName(shoulder).rotation;
 
-        tween3 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},125)
+        var normal = new TWEEN.Tween(rotation)
+        .to({x:rotation.x,y:rotation.y,z:rotation.z},125)
         .easing(TWEEN.Easing.Quadratic.Out)
 
-        tween2 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z+zShoulder},250)
-        .chain(tween3)
+        var rot2 = new TWEEN.Tween(rotation)
+        .to({x:rotation.x,y:rotation.y,z:rotation.z+zShoulder},250)
+        .chain(normal)
         .easing(TWEEN.Easing.Quadratic.Out)
 
-        tween1 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y,z:prova.z},125)
-        .chain(tween2)
+        var rot1 = new TWEEN.Tween(rotation)
+        .to({x:rotation.x,y:rotation.y,z:rotation.z},125)
+        .chain(rot2)
         .easing(TWEEN.Easing.Quadratic.Out)
 
-        new TWEEN.Tween(prova)
-		.to({x: prova.x, y:prova.y, z:prova.z+zShoulder}, 125)
-        .chain(tween1)
+        new TWEEN.Tween(rotation)
+		.to({x: rotation.x, y:rotation.y, z:rotation.z+zShoulder}, 125)
+        .chain(rot1)
 		.easing(TWEEN.Easing.Quadratic.Out)
 		.start();
     }
@@ -567,23 +539,23 @@ class Animator {
         Animator.preprocessing('R',1);
 
 		if(rotation != 0){
-			prova = model.getObjectByName('RootNode').rotation;
+			var root = model.getObjectByName('RootNode').rotation;
 
-			tween2 = new TWEEN.Tween(prova)
-			.to({x: prova.x+rotation, y:prova.y, z:prova.z}, 375)
+			var rot = new TWEEN.Tween(root)
+			.to({x: root.x+rotation, y:root.y, z:root.z}, 375)
 			.easing(TWEEN.Easing.Quadratic.Out)
 		
-			new TWEEN.Tween(prova)
-			.to({x: prova.x, y:prova.y, z:prova.z}, 125)
-			.chain(tween2)
+			new TWEEN.Tween(root)
+			.to({x: root.x, y:root.y, z:root.z}, 125)
+			.chain(rot)
 			.easing(TWEEN.Easing.Quadratic.Out)
 			.start();
 		}
 
-        prova =model.getObjectByName('RootNode').position;
+        var root =model.getObjectByName('RootNode').position;
 
-        tween4 = new TWEEN.Tween(prova)
-        .to({x: prova.x-0.3*(front/5), y: prova.y, z: prova.z+front}, 125)
+        var normal = new TWEEN.Tween(root)
+        .to({x: root.x-0.3*(front/5), y: root.y, z: root.z+front}, 125)
         .onComplete(function() {
             isJumping = false;
 			megaJump = false;
@@ -591,26 +563,24 @@ class Animator {
         })
         .easing(TWEEN.Easing.Quadratic.Out)
 
-        tween3 = new TWEEN.Tween(prova)
-        .to({y: prova.y-0.5, z: prova.z+front}, 250)
-        .chain(tween4)
+        var jump2 = new TWEEN.Tween(root)
+        .to({y: root.y-0.5, z: root.z+front}, 250)
+        .chain(normal)
         .easing(TWEEN.Easing.Quadratic.Out)
 
-        tween2 = new TWEEN.Tween(prova)
-        .to({y:prova.y+height,z:prova.z+front/2},125)
-        .chain(tween3)
+        var jump1 = new TWEEN.Tween(root)
+        .to({y:root.y+height,z:root.z+front/2},125)
+        .chain(jump2)
         .easing(TWEEN.Easing.Quadratic.Out)
         
-        new TWEEN.Tween(prova)
-        .to({y: prova.y-0.5, z: prova.z}, 125)
-        .chain(tween2)
+        new TWEEN.Tween(root)
+        .to({y: root.y-0.5, z: root.z}, 125)
+        .chain(jump1)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
 
-		prova = camera.position;
-
-		new TWEEN.Tween(prova)
-		.to({z: prova.z-1*(front/5)}, 625)
+		new TWEEN.Tween(camera.position)
+		.to({z: camera.position.z-1*(front/5)}, 625)
 		.easing(TWEEN.Easing.Quadratic.Out)
         .start();
 	}
@@ -622,61 +592,59 @@ class Animator {
         Animator.preprocessing('L',-1);
         Animator.preprocessing('R',1);
         
-        prova = model.getObjectByName('RootNode').rotation;
+        var root = model.getObjectByName('RootNode').rotation;
 
-        tween2 = new TWEEN.Tween(prova)
-        .to({x: prova.x, y:prova.y, z:prova.z+6.28*type}, 375)
+        var rotation = new TWEEN.Tween(root)
+        .to({x: root.x, y:root.y, z:root.z+6.28*type}, 375)
         .easing(TWEEN.Easing.Quadratic.Out)
 
-        new TWEEN.Tween(prova)
-		.to({x: prova.x, y:prova.y, z:prova.z}, 125)
-        .chain(tween2)
+        new TWEEN.Tween(root)
+		.to({x: root.x, y:root.y, z:root.z}, 125)
+        .chain(rotation)
 		.easing(TWEEN.Easing.Quadratic.Out)
 		.start();
 
-        prova = model.getObjectByName('RootNode').position;
+        root = model.getObjectByName('RootNode').position;
 
-        tween4 = new TWEEN.Tween(prova)
-        .to({x: prova.x-5*type, y:prova.y, z:prova.z-0.3*type}, 125)
+        var normal = new TWEEN.Tween(root)
+        .to({x: root.x-5*type, y:root.y, z:root.z-0.3*type}, 125)
         .onComplete(function() {
 			position +=1*type;
             isJumping = false;
         })
         .easing(TWEEN.Easing.Quadratic.Out)
 
-        tween3 = new TWEEN.Tween(prova)
-        .to({x: prova.x-5*type, y:prova.y-0.5, z:prova.z}, 250)
-        .chain(tween4)
+        var jump2 = new TWEEN.Tween(root)
+        .to({x: root.x-5*type, y:root.y-0.5, z:root.z}, 250)
+        .chain(normal)
         .easing(TWEEN.Easing.Quadratic.Out)
 
-        tween1 = new TWEEN.Tween(prova)
-        .to({x: prova.x-2.5*type, y:prova.y+5, z:prova.z}, 125)
-        .chain(tween3)
+        var jump1 = new TWEEN.Tween(root)
+        .to({x: root.x-2.5*type, y:root.y+5, z:root.z}, 125)
+        .chain(jump2)
         .easing(TWEEN.Easing.Quadratic.Out)
 
-        new TWEEN.Tween(prova)
-		.to({x: prova.x, y:prova.y-0.5, z:prova.z}, 125)
-        .chain(tween1)
+        new TWEEN.Tween(root)
+		.to({x: root.x, y:root.y-0.5, z:root.z}, 125)
+        .chain(jump1)
 		.easing(TWEEN.Easing.Quadratic.Out)
 		.start();
 
-		prova = camera.position;
-
-		new TWEEN.Tween(prova)
-		.to({x: prova.x+1*type}, 625)
+		new TWEEN.Tween(camera.position)
+		.to({x: camera.position.x+1*type}, 625)
 		.easing(TWEEN.Easing.Quadratic.Out)
         .start();
 
     }
 
     static idle(){
-        prova =model.getObjectByName('Neck').rotation;
+        var neck =model.getObjectByName('Neck').rotation;
 
-        new TWEEN.Tween(prova)
+        new TWEEN.Tween(neck)
 		.onComplete(function(){
 			idleInterval+=2;
 		})
-		.to({x: prova.x, y:idleInterval*Math.PI, z:prova.z}, 1000)
+		.to({x: neck.x, y:idleInterval*Math.PI, z:neck.z}, 1000)
 		.easing(TWEEN.Easing.Quadratic.Out)
 		.start();
 
@@ -688,58 +656,57 @@ class Animator {
         Animator.preprocessing('L',-1);
         Animator.preprocessing('R',1);
 
-        prova = model.getObjectByName('RootNode').rotation;
-        tween2 = new TWEEN.Tween(prova)
-        .to({x: prova.x, y:prova.y-6.3, z:prova.z}, 375)
+        var root = model.getObjectByName('RootNode').rotation;
+        var rotation = new TWEEN.Tween(root)
+        .to({x: root.x, y:root.y-6.3, z:root.z}, 375)
         .easing(TWEEN.Easing.Quadratic.Out)
     
-        new TWEEN.Tween(prova)
-        .to({x: prova.x, y:prova.y, z:prova.z}, 125)
-        .chain(tween2)
+        new TWEEN.Tween(root)
+        .to({x: root.x, y:root.y, z:root.z}, 125)
+        .chain(rotation)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
 
-        prova =model.getObjectByName('RootNode').position;
+        root =model.getObjectByName('RootNode').position;
 
-        tween4 = new TWEEN.Tween(prova)
-        .to({x: prova.x, y: prova.y, z: prova.z}, 125)
+        var normal = new TWEEN.Tween(root)
+        .to({x: root.x, y: root.y, z: root.z}, 125)
         .onComplete(function() {
             isJumping = false;
         })
         .easing(TWEEN.Easing.Quadratic.Out)
 
-        tween3 = new TWEEN.Tween(prova)
-        .to({x: prova.x, y: prova.y-0.7, z: prova.z}, 250)
-        .chain(tween4)
+        var back = new TWEEN.Tween(root)
+        .to({x: root.x, y: root.y-0.7, z: root.z}, 250)
+        .chain(normal)
         .easing(TWEEN.Easing.Quadratic.Out)
 
-        tween2 = new TWEEN.Tween(prova)
-        .to({x:prova.x,y:prova.y+0.7,z:prova.z},125)
-        .chain(tween3)
+        var jump = new TWEEN.Tween(root)
+        .to({x:root.x,y:root.y+0.7,z:root.z},125)
+        .chain(back)
         .easing(TWEEN.Easing.Quadratic.Out)
         
-        new TWEEN.Tween(prova)
-        .to({x: prova.x, y: prova.y-0.7, z: prova.z}, 125)
-        .chain(tween2)
+        new TWEEN.Tween(root)
+        .to({x: root.x, y: root.y-0.7, z: root.z}, 125)
+        .chain(jump)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
 
     }
 
 	static money(){
-
 		for(var j=0;j<lanes_mesh.length;j++){
 			for(var i=0;i<lanes_mesh[j].mesh.children.length;i++){
 				if(lanes_mesh[j].mesh.children[i].userData.type=='money'){
-					prova = lanes_mesh[j].mesh.children[i].position;
+					var coin = lanes_mesh[j].mesh.children[i].position;
 
-					tween2 = new TWEEN.Tween(prova)
-					.to({x: prova.x, y:0.4, z:prova.z}, 500)
+					var up = new TWEEN.Tween(coin)
+					.to({x: coin.x, y:0.4, z:coin.z}, 500)
 					.easing(TWEEN.Easing.Quadratic.Out)
 				
-					new TWEEN.Tween(prova)
-					.to({x: prova.x, y:0.3, z:prova.z}, 500)
-					.chain(tween2)
+					new TWEEN.Tween(coin)
+					.to({x: coin.x, y:0.3, z:coin.z}, 500)
+					.chain(up)
 					.easing(TWEEN.Easing.Quadratic.Out)
 					.start();
 			
@@ -749,14 +716,11 @@ class Animator {
 	}
 }
 
-
 const generateLanes = () => indexes.map((index) => {
 	const lane = new Lane(index);
 	scene.add(lane.mesh);
 	lanes_mesh.push(lane);
 });
-
-buttons()
 
 window.onload = Scene();
 
@@ -768,15 +732,9 @@ function onWindowResize(){
 }
 
 function SetUp(){
-
-	score = 0;
-	money = 0;
-	lanes_mesh=[];
-	indexes = [];
-	for (var i=-8;i<30;i++){
-		indexes.push(i);
-	}
-	next_index = 9;
+	score = 0, money = 0;
+	lanes_mesh=[], indexes = [];
+	for (var i=-8;i<30;i++) indexes.push(i);
 	generateLanes();
 	interval = setInterval(Animator.money,1000);
 	current_lane = lanes_mesh[next_index-1];
@@ -787,49 +745,35 @@ function SetUp(){
 	if(replay == true){
 		loader.load('models/RobotExpressive.glb', function(gltf) {
 			model = gltf.scene;
-			model.position.x=-1;
-			model.position.y=-0.1;
-			model.position.z=-0.85;
-			model.scale.x=model.scale.y=model.scale.z=0.2;
+			model.position.set(-1,-0.1,-0.85);
+			model.scale.set(0.2,0.2,0.2);
 			model.rotation.y=3.2;
+			change_color(color_model.color, color_model.type)
 			scene.add(model);
 		}, undefined, function(e) {
 			console.error(e);
 		});
 	}
-	model.position.x=-1;
-	model.position.y=-0.1;
-	model.position.z=-0.85;
-	model.scale.x=model.scale.y=model.scale.z=0.2;
+	model.position.set(-1,-0.1,-0.85);
+	position = model.position.x;
+	model.scale.set(0.2,0.2,0.2);
 	model.rotation.y=3.2;
 	document.addEventListener("keydown", onKeyDown, false);
-	time=0;
 	interval1 = setInterval(function() {time +=1},1000)
-	position = model.position.x;
+	previous_lane = [], previous_index = [], next_lane = [], next_indexes = [];
+	front = true, back = true, left = true, right = true, spawn = true;
+	megaJump = false, isJumping = false;
+	back_counter = 0, time=0;
 	running = true;
-	previous_lane = [];
-	previous_index = [];
-	next_lane = [];
-	next_indexes = [];
-	front = true;
-	back = true;
-	left = true;
-	right = true;
-	spawn = true;
-	megaJump = false;
-	isJumping = false;
-	back_counter = 0;
 	document.getElementById("buttons").style.display = 'grid';
 }
 
 function load_model(){
 	loader.load('models/RobotExpressive.glb', function(gltf) {
 		model = gltf.scene;
-		model.position.x=-0.75;
-		model.position.y=0.7;
-		model.position.z=-0.85;
+		model.position.set(-0.75,0.7,-0.85);
 		model.rotation.y = 0.8;
-		model.scale.x=model.scale.y=model.scale.z = 0.3;
+		model.scale.set(0.3,0.3,0.3)
 		camera.position.set(4,5,5);
 		scene.add(model);
 		change_color(0x8E4B00,'normal');
@@ -840,26 +784,24 @@ function load_model(){
 	});
 }
 
+function componentToHex(c) {
+	return c.toString(16).length == 1 ? "0" + c.toString(16) : c.toString(16);
+}
+
 function change_color(code,type){
 	const types = ['blu','green','yellow','red','normal'];
 	var selected = 'square_'+ type;
+	color_model = {color: code, type: type}
 	for(var i=0;i<5;i++){
 		var button = 'square_'+types[i];
 		if(button != selected) document.getElementById(button).children[0].style.display = 'none';
 	}
 	document.getElementById(selected).children[0].style.display = 'grid';
 	model.traverse( ( object ) => {
-
         if ( object.isMesh ) {
-            function componentToHex(c) {
-                var hex = c.toString(16);
-                return hex.length == 1 ? "0" + hex : hex;
-              }
             var color = object.material.color;
             color = "#" + componentToHex(Math.round(color.r)) + componentToHex(Math.round(color.g)) + componentToHex(Math.round(color.b));
-            if(color != '#000000'){
-                object.material.color.set(code)
-            }
+            if(color != '#000000') object.material.color.set(code)
         }
     
     } );
@@ -908,9 +850,7 @@ function Scene() {
 	texture_loader.load('images/money_texture.jpg', function(texture){
 		money_texture = texture;
 	});
-
-	camera.position.z = 5;
-
+	buttons()
 	animate();
 }
 
@@ -925,23 +865,23 @@ function change_background(type){
 }
 
 function buttons() {
-	document.getElementById("button_up").onclick = (button) => {
+	document.getElementById("button_up").onclick = () => {
 		onKeyDown({keyCode: 38});
 	}
 
-	document.getElementById("button_down").onclick = (button) => {
+	document.getElementById("button_down").onclick = () => {
 		onKeyDown({keyCode: 40});
 	}
 
-	document.getElementById("button_left").onclick = (button) => {
+	document.getElementById("button_left").onclick = () => {
 		onKeyDown({keyCode: 37});
 	}
 
-	document.getElementById("button_right").onclick = (button) => {
+	document.getElementById("button_right").onclick = () => {
 		onKeyDown({keyCode: 39});
 	}
 
-	document.getElementById("space_button").onclick = (button) => {
+	document.getElementById("space_button").onclick = () => {
 		onKeyDown({keyCode: 32});
 	}
 
@@ -956,6 +896,7 @@ function buttons() {
 	}
 
 	document.getElementById("home_page_start").onclick = () => {
+		document.getElementById('choose_medium').style.backgroundColor = '#FF0000';
 		load_model();
 	}
 
@@ -974,7 +915,6 @@ function buttons() {
 	}
 
 	document.getElementById("finish_replay").onclick = () => {
-		replay = true;
 		Replay();
 		document.getElementById("finish").style.display = 'none';
 		document.getElementById("score").style.display = 'grid';
@@ -1007,15 +947,12 @@ function buttons() {
 		change_background('hard');
 		speeds = [0.02,0.025,0.03];
 	}
-
-	
 }
 
 function Clear() {
 	for(var j=0;j<lanes_mesh.length;j++){
 		scene.remove(lanes_mesh[j].mesh);
 	}
-	model.position.set(-1,-0.1,-0.9);
 	scene.remove(model);
 	clearInterval(interval);
 	game_over = false;
@@ -1023,10 +960,10 @@ function Clear() {
 }
 
 function Replay() {
+	replay = true;
 	for(var j=0;j<lanes_mesh.length;j++){
 		scene.remove(lanes_mesh[j].mesh);
 	}
-	model.position.set(-1,-0.1,-0.9);
 	clearInterval(interval);
 	SetUp();
 	game_over = false;
@@ -1037,47 +974,51 @@ function collision() {
 	if(current_lane.type!='grass'){
 		for(var j=0;j<current_lane.mesh.children.length;j++){
 			if(current_lane.mesh.children[j].userData.type=='money'){
-				if(current_lane.mesh.children[j].position.x==position){
-					if(isJumping ==false) {
-						current_lane.mesh.children.splice(j,1);
-						money+=1;
-						Animator.collect();
+				if(current_lane.mesh.children[j].position.x==position && isJumping == false){
+					current_lane.mesh.children.splice(j,1);
+					money+=1;
+					Animator.collect();
+				}
+			}
+		}
+		if(current_lane.type=='truck' || current_lane.type=='car'){
+			for(var j=0;j<current_lane.mesh.children.length;j++){
+				if(current_lane.mesh.children[j].userData.type != 'money'){
+					var interval1 = current_lane.mesh.children[j].userData.type=='car'? (position - current_lane.speed)+0.95: (position - current_lane.speed)+2;
+					var interval2 = current_lane.mesh.children[j].userData.type=='car'? (position - current_lane.speed)-0.85: (position - current_lane.speed)-1;
+					if(current_lane.mesh.children[j].position.x>interval2 && current_lane.mesh.children[j].position.x<interval1 && isJumping == false){
+						game_over=true;
+						running=false;
+						document.getElementById("special_button").style.display = 'none';
+						return;
 					}
 				}
 			}
+			right=true;
+			left=true;
 		}
-	}
-	if(current_lane.type=='truck' || current_lane.type=='car'){
-		var interval1;
-		var interval2;
-		for(var j=0;j<current_lane.mesh.children.length;j++){
-			if(current_lane.mesh.children[j].userData.type=='car'){
-				interval1 = (position - current_lane.speed)+0.95;
-				interval2 = (position - current_lane.speed)-0.85;
-			}
-			if(current_lane.mesh.children[j].userData.type=='truck'){
-				interval1 = (position - current_lane.speed)+2;
-				interval2 = (position - current_lane.speed)-1;
-			}
-			if(current_lane.mesh.children[j].position.x>interval2 && current_lane.mesh.children[j].position.x<interval1){
-				if(isJumping==false){
-					game_over=true;
-					running=false;
-					document.getElementById("special_button").style.display = 'none';
-					return;
+		if(current_lane.type=='forest'){
+			for(var i=0;i<current_lane.trees.length;i++){
+				if(current_lane.trees[i].position.x==(position-1)){
+					left=false;
+					break;
 				}
+				left=true;
+			}
+			for(var i=0;i<current_lane.trees.length;i++){
+				if(current_lane.trees[i].position.x==(position+1)){
+					right=false;
+					break;
+				}
+				right=true;
 			}
 		}
+	}else{
+		right=true;
+		left=true;
 	}
 	if(next.type=='truck' || next.type=='car'){
 		front = true;
-	}
-	if(previous.type=='truck' || previous.type=='car'){
-		back = true;
-	}
-	if(current_lane.type=='truck' || current_lane.type=='car'){
-		right=true;
-		left=true;
 	}
 	if(next.type=='forest'){
 		for(var i=0;i<next.trees.length;i++){
@@ -1103,7 +1044,7 @@ function collision() {
 					break;
 				}else{
 					megaJump= false;
-					front = true;
+					front = false;
 					document.getElementById("special_button").style.display = 'none';
 					break;
 				}
@@ -1113,6 +1054,9 @@ function collision() {
 			document.getElementById("special_button").style.display = 'none';
 		}
 	}
+	if(previous.type=='truck' || previous.type=='car' || previous.type =='grass'){
+		back = true;
+	}
 	if(previous.type=='forest'){
 		for(var i=0;i<previous.trees.length;i++){
 			if(previous.trees[i].position.x==position){
@@ -1120,22 +1064,6 @@ function collision() {
 				break;
 			}
 			back = true;
-		}
-	}
-	if(current_lane.type=='forest'){
-		for(var i=0;i<current_lane.trees.length;i++){
-			if(current_lane.trees[i].position.x==(position-1)){
-				left=false;
-				break;
-			}
-			left=true;
-		}
-		for(var i=0;i<current_lane.trees.length;i++){
-			if(current_lane.trees[i].position.x==(position+1)){
-				right=false;
-				break;
-			}
-			right=true;
 		}
 	}
 }
@@ -1157,42 +1085,34 @@ function update_score(){
 
 function animation() {
 	for(var i=0;i<lanes_mesh.length;i++){
-		if(lanes_mesh[i].type == 'car' || lanes_mesh[i].type == 'truck'){
-			if(lanes_mesh[i].number_object < 3){
-				for(var j =0;j<lanes_mesh[i].vehicles.length;j++){
-					if(lanes_mesh[i].vehicles[j].userData.timestamp < Math.floor(Date.now()/1000)){
-						for(var t=0;t<lanes_mesh[i].mesh.children.length;t++){
-							if(lanes_mesh[i].mesh.children[t].userData.type=='car' || lanes_mesh[i].mesh.children[t].userData.type=='truck'){
-								if(lanes_mesh[i].mesh.children[t].position.x <lanes_mesh[i].vehicles[j].userData.spawn){
-									spawn = false;
-									break;
-								}
-								spawn = true;
+		const mesh = lanes_mesh[i].mesh;
+		if((lanes_mesh[i].type == 'car' || lanes_mesh[i].type == 'truck') && lanes_mesh[i].number_object<3){
+			for(var j =0;j<lanes_mesh[i].vehicles.length;j++){
+				if(lanes_mesh[i].vehicles[j].userData.timestamp < Math.floor(Date.now()/1000)){
+					for(var t=0;t<mesh.children.length;t++){
+						if(mesh.children[t].userData.type=='car' || mesh.children[t].userData.type=='truck'){
+							if(mesh.children[t].position.x < lanes_mesh[i].vehicles[j].userData.spawn){
+								spawn = false;
+								break;
 							}
+							spawn = true;
 						}
-						if(spawn == true){
-							lanes_mesh[i].mesh.add(lanes_mesh[i].vehicles[j]);
-							lanes_mesh[i].number_object+=1;
-							lanes_mesh[i].vehicles.splice(j,1);
-						}
+					}
+					if(spawn == true){
+						lanes_mesh[i].mesh.add(lanes_mesh[i].vehicles[j]);
+						lanes_mesh[i].number_object+=1;
+						lanes_mesh[i].vehicles.splice(j,1);
 					}
 				}
 			}
 		}
-		const mesh = lanes_mesh[i].mesh;
 		for(var j=0; j<mesh.children.length;j++){
 			if(mesh.children[j].userData.type == 'car' || mesh.children[j].userData.type == 'truck'){
 				if(mesh.children[j].userData.timestamp < Math.floor(Date.now() / 1000)){
 					if(mesh.children[j].position.x < 9){
-						const add = mesh.children[j].position.x + lanes_mesh[i].speed;
-						mesh.children[j].position.x = Math.round((add+Number.EPSILON)*100)/100;
+						mesh.children[j].position.x = Math.round(((mesh.children[j].position.x + lanes_mesh[i].speed)+Number.EPSILON)*100)/100;
 					} else{
-						var vehicle;
-						if(mesh.children[j].userData.type == 'car'){
-							vehicle = Object.Car();
-						}else{
-							vehicle = Object.Truck();
-						}
+						var vehicle = mesh.children[j].userData.type == 'car'? Object.Car(): Object.Truck();
 						lanes_mesh[i].mesh.children.splice(j,1);
 						vehicle.position.x = -15;
 						lanes_mesh[i].vehicles.push(vehicle);
@@ -1226,12 +1146,22 @@ function render() {
 	}
 }
 
+function remove_lane() {
+	next_indexes.pop();
+	next_lane.pop();
+	previous_lane.push(lanes_mesh[0]);
+	previous_index.push(indexes[0]);
+	scene.remove(lanes_mesh[0].mesh);
+	lanes_mesh.splice(0,1);
+	indexes.splice(0,1);
+	back_counter = back_counter==0?0: back_counter-=1;
+}
+
 function onKeyDown(event){
 	if(running == false || isJumping==true) return;
-	var code = event.keyCode;
 	const x = camera.position.x;
 	const z = camera.position.z;
-	switch(code){
+	switch(event.keyCode){
 		case 38:
 			if(front == false || isJumping==true) break;
 			if(back_counter == 0) {
@@ -1251,23 +1181,13 @@ function onKeyDown(event){
 				next2 = lanes_mesh[next_index+3];
 			}
 			Animator.jump(5,2,0);
-			next_indexes.pop();
-			next_lane.pop();
-			back_counter = back_counter==0?0: back_counter-=1;
-
-			previous_lane.push(lanes_mesh[0]);
-			previous_index.push(indexes[0]);
-			scene.remove(lanes_mesh[0].mesh);
-			lanes_mesh.splice(0,1);
-			indexes.splice(0,1);
+			remove_lane();
 			break;
 		case 40:
 			if(back == false || z==5) break;
 			scene.add(previous_lane[previous_lane.length-1].mesh);
-			var index_previous = [previous_index[previous_index.length-1]];
-			indexes = index_previous.concat(indexes);
-			var lane_previous = [previous_lane[previous_lane.length-1]];
-			lanes_mesh = lane_previous.concat(lanes_mesh);
+			indexes = [previous_index[previous_index.length-1]].concat(indexes);
+			lanes_mesh = [previous_lane[previous_lane.length-1]].concat(lanes_mesh);
 			next2 = lanes_mesh[next_index+1];
 			next = current_lane;
 			current_lane = previous;
@@ -1276,7 +1196,6 @@ function onKeyDown(event){
 				previous = lanes_mesh[next_index-2];
 			}
 			Animator.jump(-5,5,-6.3);
-			camera.position.z+=1;
 			previous_index.pop();
 			previous_lane.pop();
 			back_counter+=1;
@@ -1302,7 +1221,7 @@ function onKeyDown(event){
 					next_indexes.push(indexes[indexes.length-1]+1+i);
 					next_lane.push(new Lane(next_indexes[next_indexes.length-1]));
 				}
-				score+=3
+				score+=3-back_counter;
 			}
 			for(var i=3;i>0;i--){
 				scene.add(next_lane[next_lane.length-i].mesh);
@@ -1319,15 +1238,8 @@ function onKeyDown(event){
 			}
 			Animator.jump(15,15,6.3);
 			for(var i=0;i<3;i++){
-				next_indexes.pop();
-				next_lane.pop();
-				previous_lane.push(lanes_mesh[0]);
-				previous_index.push(indexes[0]);
-				scene.remove(lanes_mesh[0].mesh);
-				lanes_mesh.splice(0,1);
-				indexes.splice(0,1);
+				remove_lane();
 			}
-			back_counter = back_counter==0?0: back_counter-=3;
 			break;
 	}
 }
