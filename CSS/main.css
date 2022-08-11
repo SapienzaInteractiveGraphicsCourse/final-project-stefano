@@ -37,12 +37,74 @@
 }
 
 @media (max-width: 768px) {
-  #choose_title{
-    font-size: 3rem !important;
+  
+  #home_page, #finish{
+    left: 4% !important;
   }
 
+  #finish_title {
+    font-size: 5rem !important;
+  }
+
+  #rules {
+    left: 6.5% !important;
+  }
+
+  #rules_text {
+    font-size: 1.1rem !important; 
+  }
+
+  #choose_title {
+    font-size: 2.3rem !important;
+  }
+  
+  #choose {
+    transform: scale(0.8);
+    left: 0% !important;
+    margin-top: 0% !important;
+  }
+  
+  #buttons {
+    left: 17% !important;
+  }
+  
+  #finish_home_page, #finish_replay {
+    margin-top: 5% !important;
+    margin-bottom: 3% !important;
+  }
+  
   #choose_table {
-    margin-top: 50% !important;
+    margin-top: 100% !important;
+    transform: scale(0.9);
+  }
+
+  #choose_easy, #choose_medium, #choose_hard, #choose_start {
+    font-size: 1.5rem !important;
+  }
+  
+  #square_blu {
+    width: 60px !important;
+    height: 60px !important;
+  }
+  #square_red {
+    width: 60px !important;
+    height: 60px !important;
+  }
+  #square_yellow {
+    width: 60px !important;
+    height: 60px !important;
+  }
+  #square_green {
+    width: 60px !important;
+    height: 60px !important;
+  }
+  #square_normal {
+    width: 60px !important;
+    height: 60px !important;
+  }
+
+  #squares{
+    width: 400px !important;
   }
 }
 
@@ -52,7 +114,7 @@ body {
   margin: 0;
 }
 
-#score, #choose {
+#score{
   position: absolute;
   font-family: 'KGHAPPY';
 }
@@ -65,6 +127,7 @@ body {
 #home_page, #finish {
     position: absolute;
     top: 10%;
+    left: 27%;
     font-family: 'KGHAPPY';
 }
 
@@ -82,7 +145,14 @@ body {
 
 #rules {
     position: absolute;
+    left: 35%;
     font-family: 'KGHAPPY' !important;
+}
+
+#choose {
+  position: absolute;
+  left: 27%;
+  font-family: 'KGHAPPY';
 }
 
 #rules_home_page {
@@ -97,18 +167,20 @@ body {
 #buttons {
   position: absolute;
   top: 73%;
+  left: 40.5%;
   transform: scale(0.8);
 }
 
 #special_button {
   position: absolute;
   top: 82%;
+  left: 65%;
   transform: scale(0.8);
 }
 
 #button_up {
   top: 13%;
-  width: 98%;
+  width: 99%;
 }
 
 #finish_home_page, #finish_replay {
@@ -117,12 +189,13 @@ body {
 }
 
 #choose_table {
-  margin-top: 35%;
+  margin-top: 45%;
 }
 
 #choose_start {
   margin-top: 0% !important;
   width: 30%;
+  left: 34%;
 }
 
 #square_blu {

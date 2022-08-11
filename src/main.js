@@ -32,39 +32,12 @@ var interval;
 var interval1;
 var idleInterval = 2;
 var time;
+var replay;
 
 // scene and camera
 const loader = new GLTFLoader();
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(30 , window.innerWidth/window.innerHeight, 0.25, 1000 );
-document.getElementById("home_page").style.left = (camera.aspect*12) + '%';
-document.getElementById("finish").style.left = (camera.aspect*12) + '%';
-document.getElementById("rules").style.left = (camera.aspect*15.5) + '%';
-document.getElementById("choose").style.left = (camera.aspect*12) + '%';
-document.getElementById("choose_start").style.left = (camera.aspect*16) + '%';
-function resizeButtons(){
-	if(document.getElementById("special_button").style.display == 'none'){
-		if(camera.aspect <0.89){
-			document.getElementById("buttons").style.left = (camera.aspect*30) + '%';
-		}else if(camera.aspect >0.89 && camera.aspect <1.67){
-			document.getElementById("buttons").style.left = (camera.aspect*22) + '%';
-		}
-		else{
-			document.getElementById("buttons").style.left = (camera.aspect*19) + '%';
-		}
-	}else{
-		document.getElementById("buttons").style.left = (camera.aspect*18.5) + '%';
-	}
-	if(camera.aspect <0.89){
-		document.getElementById("special_button").style.left = (camera.aspect*100) + '%';
-	}else if(camera.aspect >0.89 && camera.aspect <1.67){
-		document.getElementById("special_button").style.left = (camera.aspect*50) + '%';
-	}
-	else{
-		document.getElementById("special_button").style.left = (camera.aspect*30) + '%';
-	}
-	document.getElementById("button_up").style.left = (camera.aspect)*0.2 + '%';
-}
 var renderer = new THREE.WebGLRenderer();
 
 //light
@@ -268,10 +241,9 @@ class Object {
 			new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ),
 			new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ),
 			new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ),
-			new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ), // top
-			new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ) // bottom
-		  ]
-		);
+			new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ),
+			new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } )
+		  ]);
 		cabin.position.y = 0.2;
 		cabin.position.x = 0;
 		cabin.position.z = -0.22;
@@ -401,12 +373,12 @@ class Object {
 		const cabin = new THREE.Mesh(
 			new THREE.BoxBufferGeometry(0.5,0.7,0.7),
 			[
-				new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ), // back
 				new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ),
 				new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ),
 				new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ),
-				new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ), // top
-				new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ) // bottom
+				new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ),
+				new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } ),
+				new THREE.MeshPhongMaterial( { color, flatShading: true, map: texture } )
 			  ]
 		);
 		cabin.position.x=0.85;
@@ -788,32 +760,6 @@ buttons()
 
 window.onload = Scene();
 
-window.addEventListener('resize', onWindowResize, false)
-function onWindowResize() {
-	camera.aspect = window.innerWidth / window.innerHeight
-    camera.updateProjectionMatrix()
-    renderer.setSize(window.innerWidth, window.innerHeight)
-	document.getElementById("home_page").style.left = (camera.aspect*12) + '%';
-	document.getElementById("finish").style.left = (camera.aspect*12) + '%';
-	document.getElementById("rules").style.left = (camera.aspect*15.5) + '%';
-	document.getElementById("choose").style.left = (camera.aspect*12) + '%';
-	document.getElementById("choose_start").style.left = (camera.aspect*17) + '%';
-	if(document.getElementById("special_button").style.display == 'none'){
-		document.getElementById("buttons").style.left = (camera.aspect*19.5) + '%';
-	}else{
-		document.getElementById("buttons").style.left = (camera.aspect*18.5) + '%';
-	}
-	if(camera.aspect <0.89){
-		document.getElementById("special_button").style.left = (camera.aspect*100) + '%';
-	}else if(camera.aspect >0.89 && camera.aspect <1.67){
-		document.getElementById("special_button").style.left = (camera.aspect*50) + '%';
-	}
-	else{
-		document.getElementById("special_button").style.left = (camera.aspect*30) + '%';
-	}
-	document.getElementById("button_up").style.left = (camera.aspect)*0.2 + '%';
-}
-
 function SetUp(){
 
 	score = 0;
@@ -831,6 +777,19 @@ function SetUp(){
 	previous = lanes_mesh[next_index-2];
 	next2 = lanes_mesh[next_index+2];
 	camera.position.set(4,5,5);
+	if(replay == true){
+		loader.load('models/RobotExpressive.glb', function(gltf) {
+			model = gltf.scene;
+			model.position.x=-1;
+			model.position.y=-0.1;
+			model.position.z=-0.85;
+			model.scale.x=model.scale.y=model.scale.z=0.2;
+			model.rotation.y=3.2;
+			scene.add(model);
+		}, undefined, function(e) {
+			console.error(e);
+		});
+	}
 	model.position.x=-1;
 	model.position.y=-0.1;
 	model.position.z=-0.85;
@@ -859,13 +818,12 @@ function SetUp(){
 function load_model(){
 	loader.load('models/RobotExpressive.glb', function(gltf) {
 		model = gltf.scene;
-		model.position.x=-1;
-		model.position.y=0.85;
+		model.position.x=-0.75;
+		model.position.y=0.7;
 		model.position.z=-0.85;
 		model.rotation.y = 0.8;
-		console.log(document.getElementById("choose_title").style)
-		//if(document.getElementById("choose").style.transform == )
 		model.scale.x=model.scale.y=model.scale.z = 0.3;
+		camera.position.set(4,5,5);
 		scene.add(model);
 		change_color(0x8E4B00,'normal');
 		document.getElementById("home_page").style.display = 'none';
@@ -900,7 +858,6 @@ function change_color(code,type){
     } );
 }
 
-
 function Scene() {
 	
 	document.getElementById("home_page").style.display= 'grid';
@@ -910,7 +867,6 @@ function Scene() {
 	document.getElementById("buttons").style.display = 'none';
 	document.getElementById("special_button").style.display = 'none';
 	document.getElementById("choose").style.display = 'none';
-	resizeButtons()
 
 	camera.position.set(4,5,5);
 	camera.lookAt(new THREE.Vector3(0,2,0));
@@ -1011,6 +967,7 @@ function buttons() {
 	}
 
 	document.getElementById("finish_replay").onclick = () => {
+		replay = true;
 		Replay();
 		document.getElementById("finish").style.display = 'none';
 		document.getElementById("score").style.display = 'grid';
@@ -1051,6 +1008,7 @@ function Clear() {
 	for(var j=0;j<lanes_mesh.length;j++){
 		scene.remove(lanes_mesh[j].mesh);
 	}
+	model.position.set(-1,-0.1,-0.9);
 	scene.remove(model);
 	clearInterval(interval);
 	game_over = false;
@@ -1065,6 +1023,7 @@ function Replay() {
 	clearInterval(interval);
 	SetUp();
 	game_over = false;
+	replay = false;
 }
 
 function collision() {
@@ -1251,7 +1210,6 @@ function render() {
 	animation();
 	collision();
 	update_score();
-	resizeButtons();
 	if(game_over==true){
 		finish();
 	}
