@@ -1,6 +1,6 @@
 @font-face {
-    font-family: 'KGHAPPY';
-    src: url('KGHAPPY.ttf') format('truetype');
+  font-family: 'KGHAPPY';
+  src: url('KGHAPPY.ttf') format('truetype');
 }
 
 /* CSS */
@@ -69,7 +69,7 @@
   }
 
   #button_up {
-    top: 17% !important;
+    top: 22% !important;
   }
   
   #finish_home_page, #finish_replay {
@@ -86,23 +86,7 @@
     font-size: 1.5rem !important;
   }
   
-  #square_blu {
-    width: 60px !important;
-    height: 60px !important;
-  }
-  #square_red {
-    width: 60px !important;
-    height: 60px !important;
-  }
-  #square_yellow {
-    width: 60px !important;
-    height: 60px !important;
-  }
-  #square_green {
-    width: 60px !important;
-    height: 60px !important;
-  }
-  #square_normal {
+  #square_blu, #square_red, #square_yellow, #square_green, #square_normal {
     width: 60px !important;
     height: 60px !important;
   }
@@ -114,11 +98,10 @@
 
 body {
   position: fixed;
-  max-width: 100%;
   margin: 0;
 }
 
-#score{
+#score, #home_page, #finish, #rules, #choose, #buttons, #special_button{
   position: absolute;
   font-family: 'KGHAPPY';
 }
@@ -129,34 +112,60 @@ body {
 }
 
 #home_page, #finish {
-    position: absolute;
-    top: 10%;
-    left: 27%;
-    font-family: 'KGHAPPY';
+  top: 10%;
+  left: 27%;
 }
 
 #home_page_title, #rules_title, #finish_title {
-    font-size: 6rem;
+  font-size: 6rem;
+}
+
+#home_page_column, #rules_column, #finish_column {
+  text-align: center;
 }
 
 #choose_title {
   font-size: 4rem;
 }
 
-#home_page_column, #rules_column, #finish_column {
-    text-align: center;
+#choose {
+  left: 27%;
+}
+
+#choose_table {
+  margin-top: 45%;
+}
+
+#choose_start {
+  margin-top: 0% !important;
+  width: 30%;
+  left: 34%;
+}
+
+#square_blu, #square_red, #square_yellow, #square_green, #square_normal {
+  width: 90px;
+  height: 90px;
+  margin-top: 0% !important;
+}
+
+#square_blu {
+  background: #0000FF;
+}
+#square_red {
+  background: #FF0000;
+}
+#square_yellow {
+  background: #FFFF00;
+}
+#square_green {
+  background: #00FF00;
+}
+#square_normal {
+  background: #B45F06;
 }
 
 #rules {
-    position: absolute;
-    left: 35%;
-    font-family: 'KGHAPPY' !important;
-}
-
-#choose {
-  position: absolute;
-  left: 27%;
-  font-family: 'KGHAPPY';
+  left: 35%;
 }
 
 #rules_home_page {
@@ -169,14 +178,12 @@ body {
 }
 
 #buttons {
-  position: absolute;
   top: 73%;
   left: 40.5%;
   transform: scale(0.8);
 }
 
 #special_button {
-  position: absolute;
   top: 82%;
   left: 65%;
   transform: scale(0.8);
@@ -190,45 +197,4 @@ body {
 #finish_home_page, #finish_replay {
   margin-top: 5% !important;
   margin-bottom: 3% !important;
-}
-
-#choose_table {
-  margin-top: 45%;
-}
-
-#choose_start {
-  margin-top: 0% !important;
-  width: 30%;
-  left: 34%;
-}
-
-#square_blu {
-  width: 90px;
-  height: 90px;
-  background: #0000FF;
-  margin-top: 0% !important;
-}
-#square_red {
-  width: 90px;
-  height: 90px;
-  background: #FF0000;
-  margin-top: 0% !important;
-}
-#square_yellow {
-  width: 90px;
-  height: 90px;
-  background: #FFFF00;
-  margin-top: 0% !important;
-}
-#square_green {
-  width: 90px;
-  height: 90px;
-  background: #00FF00;
-  margin-top: 0% !important;
-}
-#square_normal {
-  width: 90px;
-  height: 90px;
-  background: #B45F06;
-  margin-top: 0% !important;
 }
