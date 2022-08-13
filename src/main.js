@@ -789,7 +789,7 @@ function SetUp(){
 	next = lanes_mesh[next_index];
 	previous = lanes_mesh[next_index-2];
 	next2 = lanes_mesh[next_index+2];
-	camera.position.set(4,5,5);
+	camera.position.set(5,5,5);
 	if(replay == true){
 		loader.load('models/RobotExpressive.glb', function(gltf) {
 			model = gltf.scene;
@@ -1274,11 +1274,11 @@ function onKeyDown(event){
 			indexes.splice(indexes.length-1,1);
 			break;
 		case 37:
-			if(left==false || x==-8) break;
+			if(left==false || x==-7) break;
 			Animator.jumpSide(-1);
 			break;
 		case 39:
-			if(right==false || x==12) break;
+			if(right==false || x==13) break;
 			Animator.jumpSide(1);
 			break;
 		case 32:
