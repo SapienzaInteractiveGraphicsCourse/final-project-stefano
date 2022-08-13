@@ -1034,6 +1034,7 @@ function collision() {
 				if(current_lane.mesh.children[j].userData.type != 'money'){
 					var interval1 = current_lane.mesh.children[j].userData.type=='car'? (position - current_lane.speed)+0.95: (position - current_lane.speed)+2;
 					var interval2 = current_lane.mesh.children[j].userData.type=='car'? (position - current_lane.speed)-0.85: (position - current_lane.speed)-1;
+					if(current_lane.mesh.children[j].userData.type !='car' && current_lane.inverted) interval1 = position-current_lane.speed +1;
 					if(current_lane.mesh.children[j].position.x>interval2 && current_lane.mesh.children[j].position.x<interval1 && isJumping == false){
 						game_over=true;
 						running=false;
