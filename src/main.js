@@ -8,6 +8,7 @@ var money_div = document.getElementById("money_score");
 var finish_score_div = document.getElementById("finish_step");
 var finish_money_div = document.getElementById("finish_money");
 var final_score_div = document.getElementById("final_score");
+document.getElementById('choose_medium').style.backgroundColor = '#FF0000';
 var score;
 var money;
 
@@ -944,7 +945,6 @@ function buttons() {
 	}
 
 	document.getElementById("home_page_start").onclick = () => {
-		document.getElementById('choose_medium').style.backgroundColor = '#FF0000';
 		load_model();
 	}
 
@@ -993,7 +993,7 @@ function buttons() {
 	}
 	document.getElementById("choose_hard").onclick = () => {
 		change_background('hard');
-		speeds = [0.02,0.025,0.03];
+		speeds = [0.03,0.04,0.05];
 	}
 }
 
@@ -1032,7 +1032,7 @@ function collision() {
 		if(current_lane.type=='truck' || current_lane.type=='car'){
 			for(var j=0;j<current_lane.mesh.children.length;j++){
 				if(current_lane.mesh.children[j].userData.type != 'money'){
-					var interval1 = current_lane.mesh.children[j].userData.type=='car'? (position - current_lane.speed)+0.95: (position - current_lane.speed)+2;
+					var interval1 = current_lane.mesh.children[j].userData.type=='car'? (position - current_lane.speed)+0.95: (position - current_lane.speed)+2.5;
 					var interval2 = current_lane.mesh.children[j].userData.type=='car'? (position - current_lane.speed)-0.85: (position - current_lane.speed)-1;
 					if(current_lane.mesh.children[j].userData.type !='car' && current_lane.inverted) interval1 = position-current_lane.speed +1;
 					if(current_lane.mesh.children[j].position.x>interval2 && current_lane.mesh.children[j].position.x<interval1 && isJumping == false){
