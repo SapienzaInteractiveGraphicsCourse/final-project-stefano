@@ -1056,7 +1056,7 @@ function collision() {
 					if(current_lane.mesh.children[j].position.x>interval2 && current_lane.mesh.children[j].position.x<interval1 && isJumping == false){
 						game_over=true;
 						running=false;
-						document.getElementById("special_button").children[0].disabled=true;
+						document.getElementById("special_button").style.display = 'none';
 						return;
 					}
 				}
