@@ -608,7 +608,7 @@ class Animator {
         .onComplete(function() {
             isJumping = false;
 			megaJump = false;
-			document.getElementById("special_button").style.display = 'none';
+			document.getElementById("special_button").children[0].disabled=true;
         })
         .easing(TWEEN.Easing.Quadratic.Out)
 
@@ -815,6 +815,8 @@ function SetUp(){
 	back_counter = 0, time=0;
 	running = true;
 	document.getElementById("buttons").style.display = 'grid';
+	document.getElementById("special_button").style.display = 'grid';
+	document.getElementById("special_button").children[0].disabled=true;
 }
 
 function load_model(){
@@ -1038,7 +1040,7 @@ function collision() {
 					if(current_lane.mesh.children[j].position.x>interval2 && current_lane.mesh.children[j].position.x<interval1 && isJumping == false){
 						game_over=true;
 						running=false;
-						document.getElementById("special_button").style.display = 'none';
+						document.getElementById("special_button").children[0].disabled=true;
 						return;
 					}
 				}
@@ -1078,29 +1080,29 @@ function collision() {
 							if(next2.trees[j].position.x == position){
 								megaJump = false;
 								front = false;
-								document.getElementById("special_button").style.display = 'none';
+								document.getElementById("special_button").children[0].disabled=true;
 								break;
 							}
 							megaJump=true;
 							front=false;
-							document.getElementById("special_button").style.display = 'grid';
+							document.getElementById("special_button").children[0].disabled=false;
 						}
 					}else{
 						megaJump=true;
 						front=false;
-						document.getElementById("special_button").style.display = 'grid';
+						document.getElementById("special_button").children[0].disabled=false;
 					}
 					break;
 				}else{
 					megaJump= false;
 					front = false;
-					document.getElementById("special_button").style.display = 'none';
+					document.getElementById("special_button").children[0].disabled=true;
 					break;
 				}
 			}
 			front = true;
 			megaJump = false;
-			document.getElementById("special_button").style.display = 'none';
+			document.getElementById("special_button").children[0].disabled=true;
 		}
 	}
 	if(previous.type=='truck' || previous.type=='car' || previous.type =='grass'){
