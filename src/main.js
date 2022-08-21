@@ -777,20 +777,31 @@ window.addEventListener( 'resize', onWindowResize, false );
 function onWindowResize(){
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
+  if(document.getElementById("score").style.display == 'grid'){
+	if(window.innerWidth <=768){
+		camera.position.set(7,8,8);
+	  }else{
+		camera.position.set(5,5,5);
+	  }
+  }
   renderer.setSize( window.innerWidth, window.innerHeight );
 }
 
 function SetUp(){
 	score = 0, money = 0;
 	lanes_mesh=[], indexes = [];
-	for (var i=-8;i<30;i++) indexes.push(i);
+	for (var i=-8;i<35;i++) indexes.push(i);
 	generateLanes();
 	interval = setInterval(Animator.money,1000);
 	current_lane = lanes_mesh[next_index-1];
 	next = lanes_mesh[next_index];
 	previous = lanes_mesh[next_index-2];
 	next2 = lanes_mesh[next_index+2];
-	camera.position.set(5,5,5);
+	if(window.innerWidth <=768){
+		camera.position.set(7,8,8);
+	}else{
+		camera.position.set(5,5,5);
+	}
 	if(replay == true){
 		loader.load('models/RobotExpressive.glb', function(gltf) {
 			model = gltf.scene;
