@@ -36,6 +36,7 @@ const loader = new GLTFLoader();
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(30 , window.innerWidth/window.innerHeight, 0.25, 1000 );
 var renderer = new THREE.WebGLRenderer();
+var xCamera;
 
 //light
 var light = new THREE.DirectionalLight(0xffffff);
@@ -160,7 +161,7 @@ class Lane {
 			case 'forest': {
 				this.mesh = Object.Grass();
 				this.occupied = new Set();
-				this.trees = [1,2,3,4,5].map(() => {
+				this.trees = [1,2,3,4,5,6].map(() => {
 					const tree = Object.Tree();
 					var pos = Math.floor(Math.random()*20);
 					while(this.occupied.has(pos)){
@@ -442,7 +443,7 @@ class Object {
 	}
 
 	static Road() {
-		const geometry = new THREE.BoxBufferGeometry(75,0.1,1);
+		const geometry = new THREE.BoxBufferGeometry(90,0.1,1);
 		const material = new THREE.MeshPhongMaterial({color: 0x444444});
 		const road = new THREE.Mesh(geometry, material);
 		road.position.y = -0.2;
@@ -451,7 +452,7 @@ class Object {
 	}
 
 	static Grass() {
-		const geometry = new THREE.BoxBufferGeometry(75,0.1,1);
+		const geometry = new THREE.BoxBufferGeometry(90,0.1,1);
 		const material = new THREE.MeshPhongMaterial({color: 0x78b14b});
 		const grass = new THREE.Mesh(geometry, material);
 		grass.position.y = -0.2;
@@ -777,12 +778,14 @@ window.addEventListener( 'resize', onWindowResize, false );
 function onWindowResize(){
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
-  if(document.getElementById("score").style.display == 'grid'){
+  if(document.getElementById('score').style.display == 'grid'){
 	if(window.innerWidth <=768){
-		camera.position.set(7,8,8);
-	  }else{
-		camera.position.set(5,5,5);
-	  }
+		camera.position.set(7+camera.position.x-5,8+camera.position.y-5,9+camera.position.z-5);
+		xCamera = 7;
+	}else{
+		camera.position.set(5+camera.position.x-7,5+camera.position.y-8,5+camera.position.z-9);
+		xCamera = 5;
+	}
   }
   renderer.setSize( window.innerWidth, window.innerHeight );
 }
@@ -790,7 +793,7 @@ function onWindowResize(){
 function SetUp(){
 	score = 0, money = 0;
 	lanes_mesh=[], indexes = [];
-	for (var i=-8;i<35;i++) indexes.push(i);
+	for (var i=-8;i<40;i++) indexes.push(i);
 	generateLanes();
 	interval = setInterval(Animator.money,1000);
 	current_lane = lanes_mesh[next_index-1];
@@ -798,9 +801,11 @@ function SetUp(){
 	previous = lanes_mesh[next_index-2];
 	next2 = lanes_mesh[next_index+2];
 	if(window.innerWidth <=768){
-		camera.position.set(7,8,8);
+		camera.position.set(7,8,9);
+		xCamera = 7;
 	}else{
 		camera.position.set(5,5,5);
+		xCamera = 5;
 	}
 	if(replay == true){
 		loader.load('models/RobotExpressive.glb', function(gltf) {
@@ -1288,11 +1293,11 @@ function onKeyDown(event){
 			indexes.splice(indexes.length-1,1);
 			break;
 		case 37:
-			if(left==false || x==-7) break;
+			if(left==false || x==xCamera-12) break;
 			Animator.jumpSide(-1);
 			break;
 		case 39:
-			if(right==false || x==13) break;
+			if(right==false || x==xCamera+8) break;
 			Animator.jumpSide(1);
 			break;
 		case 32:

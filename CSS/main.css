@@ -30,10 +30,14 @@
   left: 5px;
 }
 
+button:disabled {
+  opacity: 0.5 !important;
+}
+
 button:disabled:active {
-  box-shadow: 1px 1px 0px 0px, 2px 2px 0px 0px, 3px 3px 0px 0px, 4px 4px 0px 0px, 5px 5px 0px 0px !important;
-  top: 0px !important;
-  left: 0px !important;
+  box-shadow: 1px 1px 0px 0px, 2px 2px 0px 0px, 3px 3px 0px 0px, 4px 4px 0px 0px, 5px 5px 0px 0px;
+  top: 0px;
+  left: 0px;
 }
 
 @media (min-width: 768px) {
